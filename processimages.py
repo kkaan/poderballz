@@ -11,15 +11,14 @@ Created on Thu May  6 14:19:56 2021
 
 @author: 56153805
 """
-
+import time, sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pydicom as dicom
-import glob
 import pandas 
 from pathlib import Path
 
-
+from operator import itemgetter
 from skimage import data, color
 from skimage.transform import hough_circle, hough_circle_peaks
 from skimage.feature import canny
@@ -88,7 +87,7 @@ def get_ball_positions(sel):
     hough_res = hough_circle(edges, hough_radii)
     accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii,
                                             total_num_peaks=4)
-    ball_positions = [cx,cy]
+    ball_positions = list(zip(cy,cx))
     return ball_positions
     
 def crop_center(img,cropx,cropy):
@@ -100,6 +99,27 @@ def crop_center(img,cropx,cropy):
 def import_DRRs():
     pass
 
+
+#progress bar
+def update_progress(progress):
+    barLength = 100 # Modify this to change the length of the progress bar
+    status = ""
+    if isinstance(progress, int):
+        progress = float(progress)
+    if not isinstance(progress, float):
+        progress = 0
+        status = "error: progress var must be float\r\n"
+    if progress < 0:
+        progress = 0
+        status = "Halt...\r\n"
+    if progress >= 1:
+        progress = 1
+        status = "Done...\r\n"
+    block = int(round(barLength*progress))
+    text = "\rPercent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), progress*100, status)
+    sys.stdout.write(text)
+    sys.stdout.flush()
+    
 
 #load folder
 data_folder = Path("P:/14 Projects/49_SRS Phantom/Ballz,Poder_6XFFF_210505_1627/MV/")
@@ -118,11 +138,13 @@ image_df['Apertures'] = image_df['Apertures'].astype(object)
 #         img = Image.open(file)
         
 
-# Load EPID
+# progress bar
+progmax = len(image_df.index)
+count = 0
 
-for filename in image_df.index[1:3]:
+for filename in image_df.index[40:]:
+    
     image_file = data_folder / filename
-
     imgepid = Image.open(image_file)
     imgepid = np.array(imgepid)
     imgepid = crop_center(imgepid, 900, 900)
@@ -132,10 +154,61 @@ for filename in image_df.index[1:3]:
     sel[binary] = imgepid[binary]
     apeture_centroids = get_apeture_centroids(imgepid)
     ball_positions = get_ball_positions(sel)
-    image_df.at[filename,'Apertures'] = apeture_centroids
-    image_df.at[filename,'Balls'] = ball_positions
-   
+    ball_positions = sorted(ball_positions, key=itemgetter(0))
     
+    if len(apeture_centroids) == len(apeture_centroids) == 4:
+        image_df.at[filename,'Apertures'] = apeture_centroids
+        image_df.at[filename,'Balls'] = ball_positions
+    
+    # Progress bar
+    count += 1
+    update_progress(count/progmax)
+ 
+
+
+#clean up the data 
+
+#get rid of empty lists
+
+
+#plot ball positions in relation to gantry
+
+g = list(image_df.Gantry.values)
+a = list(image_df.Balls.values)
+
+
+
+b1x = [i[0][0] for i in a]
+b1y = [i[0][1] for i in a]
+
+b2x = [i[1][0] for i in a]
+b2y = [i[1][1] for i in a]
+
+b3x = [i[2][0] for i in a]
+b3y = [i[2][1] for i in a]
+
+b4x = [i[3][0] for i in a]
+b4y = [i[3][1] for i in a]
+
+fig, (ax1, ax2) = plt.subplots(2, 1)
+fig.suptitle('A tale of four balls')
+
+ax1.plot(g, b1x, 'ro', label='B1', markersize=1)
+ax1.plot(g, b2x, 'bo', label = 'B2', markersize=1) 
+ax1.plot(g, b3x, 'go', label = 'B3', markersize=1)
+ax1.plot(g, b4x, 'mo', label = 'B4', markersize=1)
+ax1.set_ylabel('X position of the balls')
+
+ax2.plot(g, b1y, 'ro', label='B1', markersize=1)
+ax2.plot(g, b2y, 'bo', label = 'B2', markersize=1) 
+ax2.plot(g, b3y, 'go', label = 'B3', markersize=1)
+ax2.plot(g, b4y, 'mo', label = 'B4', markersize=1)
+ax2.set_xlabel('Gantry')
+ax2.set_ylabel('X position of the balls')
+
+
+plt.show()
+   
 
 # # Load DRR
 # ds = dicom.dcmread('P:/14 Projects/49_SRS Phantom/DRRs/RI.PhysPLA.G180B_C0T0_9-NA.dcm')
