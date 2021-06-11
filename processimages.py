@@ -194,7 +194,6 @@ def show_coords_on_images(image, centroids, cx, cy):
     
 #def get_ballandapeture(files, balls_col_name, apetures_col_name):
     
-    
 
 #load folder
 data_folder = 'P:/14 Projects/49_SRS Phantom/Output Images/'
