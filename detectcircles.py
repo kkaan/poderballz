@@ -7,6 +7,7 @@ Created on Thu May  6 14:19:56 2021
 
 import numpy as np
 import matplotlib.pyplot as plt
+import imageio
 
 from skimage import data, color
 from skimage.transform import hough_circle, hough_circle_peaks
@@ -16,7 +17,7 @@ from skimage.filters import threshold_otsu
 from skimage.draw import circle_perimeter
 from skimage.util import img_as_ubyte
 from scipy.ndimage.measurements import center_of_mass
-from PIL import Image
+
 
 
 def crop_center(img,cropx,cropy):
@@ -28,9 +29,11 @@ def crop_center(img,cropx,cropy):
 
 
 # Load picture and detect edges
-image = Image.open('P:/14 Projects/49_SRS Phantom/Ballz,Poder_6XFFF_210505_1627/MV/Ch0_1_661_175.99.tiff')
+image = imageio.imread('P:/14 Projects/49_SRS Phantom/Output Images/EPID/'+
+                       'Image0012.tif')
 image = np.array(image)
 
+# Test images
 #"P:\14 Projects\49_SRS Phantom\Ballz,Poder_6XFFF_210505_1627\MV\Ch0_1_668_173.24.tiff"
 
 image = crop_center(image, 900, 900)
@@ -115,10 +118,12 @@ image = color.gray2rgb(image)
 #     image[circy, circx] = (500, 20, 20)
 
 for centroid in centroids:
-        ax.plot(centroid[1], centroid[0], color="darkred", marker='x', linewidth=3, markersize=5)
+        ax.plot(centroid[1], centroid[0], color="darkred", marker='x', 
+                linewidth=3, markersize=5)
 
 for center_y, center_x in zip(cy, cx):
-        ax.plot(center_x, center_y, color="darkblue",marker='o', linewidth=3, markersize=2)
+        ax.plot(center_x, center_y, color="darkblue",marker='o', 
+                linewidth=3, markersize=2)
 
 ax.imshow(image)
 plt.show()
