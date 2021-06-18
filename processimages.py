@@ -15,8 +15,9 @@ import pandas
 import glob
 import os
 import imageio
-from pathlib import Path
 
+from pathlib import Path
+from skimage import color
 from operator import itemgetter
 from skimage.transform import hough_circle, hough_circle_peaks
 from skimage.feature import canny
@@ -107,7 +108,7 @@ def update_progress(progress):
 
 
 # Plotting the balls
-def plotballs():
+def plot_balls():
     """
     
     Plots ball positions over gantry agnles
@@ -154,7 +155,7 @@ def plotballs():
     
     plt.show()
 
-def show_coords_on_images(image, centroids, cx, cy):
+def plot_coords_on_images(image, apertures, balls):
     """
     
     Plots the coordinates of balls and apertures on the images.
@@ -176,16 +177,13 @@ def show_coords_on_images(image, centroids, cx, cy):
     """
     fig, ax = plt.subplots()
     image = color.gray2rgb(image)
-    # for center_y, center_x, radius in zip(cy, cx, radii):
-    #     circy, circx = circle_perimeter(center_y, center_x, radius,
-    #                                     shape=image.shape)
-    #     image[circy, circx] = (500, 20, 20)
+
     
-    for centroid in centroids:
+    for a in apertures:
             ax.plot(centroid[1], centroid[0], color="darkred", marker='x', 
                     linewidth=3, markersize=5)
     
-    for center_y, center_x in zip(cy, cx):
+    for b in balls:
             ax.plot(center_x, center_y, color="darkblue",marker='o', 
                     linewidth=3, markersize=2)
     
@@ -217,7 +215,8 @@ image_df['EPIDApertures'] = image_df['EPIDApertures'].astype(object)
         
 #load epid image names
 names = [os.path.basename(x) for x in glob.glob('P:/14 Projects/49_SRS'+
-                                                ' Phantom/Output Images/EPID/*.tif')]
+                                                ' Phantom/Output'+
+                                                ' Images/EPID/*.tif')]
 image_df['filename'] = names
 
 #get_ballandapeture(files, "EPIDBalls", "EPIDApertures")
@@ -247,3 +246,9 @@ for i, n in enumerate(names):
     
     # Progress bar
     update_progress(i/progmax)
+
+
+# for i in image_df.iloc[50:70]:
+#     plot_coords_on_images(image, apeture, cx, cy)
+#     plot_balls()
+
