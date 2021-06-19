@@ -85,6 +85,19 @@ def sparse_image(img,cropx,cropy):
 
 #progress bar
 def update_progress(progress):
+    '''
+    Creates a progress bar in standard output.
+
+    Parameters
+    ----------
+    progress : int, float
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    '''
     barLength = 100 # Modify this to change the length of the progress bar
     status = ""
     if isinstance(progress, int):
@@ -162,29 +175,31 @@ def plot_coords_on_images(image, apertures, balls):
     
     Parameters
     ----------
-    image : TYPE
+    image : numpy array
         EPID image on which to show ball positions.
-    centroids : list of tuples
+    apertures : list of tuples
         apeture positions.
-    cx : 4x1 array of x positions of balls 
-        apeture positions.
-    cy : 4x1 array of y positions of balls in the same order as cx
+    balls : list of tuples 
+        ball positions.
 
     Returns
     -------
     None.
 
     """
+    image = sparse_image(image, 900, 900)
+    
+    
     fig, ax = plt.subplots()
     image = color.gray2rgb(image)
 
     
     for a in apertures:
-            ax.plot(centroid[1], centroid[0], color="darkred", marker='x', 
+            ax.plot(a[1], a[0], color="darkred", marker='x', 
                     linewidth=3, markersize=5)
     
     for b in balls:
-            ax.plot(center_x, center_y, color="darkblue",marker='o', 
+            ax.plot(b[1], b[0], color="darkblue",marker='o', 
                     linewidth=3, markersize=2)
     
     ax.imshow(image)
@@ -224,13 +239,15 @@ image_df['filename'] = names
 progmax = len(image_df)
 
 #Process all images and save ball and aperture positions.
+cropx = 900
+cropy = 900
 
 for i, n in enumerate(names):
     filename = epidfolder / n
     imgepid = imageio.imread(filename)
     imgepid = np.array(imgepid)
     
-    imgepid = sparse_image(imgepid, 900, 900)
+    imgepid = sparse_image(imgepid, cropx, cropy)
     thresh = threshold_otsu(imgepid)
     binary = imgepid > thresh
     sel = np.zeros_like(imgepid)
@@ -248,7 +265,50 @@ for i, n in enumerate(names):
     update_progress(i/progmax)
 
 
-# for i in image_df.iloc[50:70]:
-#     plot_coords_on_images(image, apeture, cx, cy)
-#     plot_balls()
+for i in image_df.loc[50:70].itertuples():
+    filename = i.filename
+    filename = epidfolder / filename
+    imgepid = imageio.imread(filename)
+    imgepid = np.array(imgepid)
+    
+    balls = i.EPIDBalls
+    aperture = i.EPIDApertures
+    plot_coords_on_images(imgepid, aperture, balls)
+    
+plot_balls()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
