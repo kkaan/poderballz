@@ -71,7 +71,7 @@ def get_ball_positions(sel):
     hough_res = hough_circle(edges, hough_radii)
     accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii,
                                             total_num_peaks=4)
-    ball_positions = list(zip(cy,cx))
+    ball_positions = list(zip(cx,cy))
     return ball_positions
 
 
