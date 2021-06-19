@@ -25,7 +25,7 @@ from skimage.measure import regionprops, label
 from skimage.filters import threshold_otsu
 
 
-def get_apeture_centroids(image):
+def get_apeture_centroids(image, binary):
     """
     Calculate the locations of all the mlc defined aperture positions in
     the image. The location will be returned as the coordinates of the centre 
@@ -35,6 +35,8 @@ def get_apeture_centroids(image):
     ----------
     image : numpy array
         image within which to find the mlc apertures.
+    binary : boolean array
+        boolean mask for epid image to only include apetures
 
     Returns
     -------
@@ -42,16 +44,13 @@ def get_apeture_centroids(image):
         list of apertures found in increasing y coordingates.
 
     """
-    thresh = threshold_otsu(image)
-    binary = image > thresh
-    
     label_image = label(binary)
     apertures = regionprops(label_image)
     centroids = [a.centroid for a in apertures]
     
     return centroids
 
-def get_ball_positions(sel):
+def get_ball_positions(image, binary):
     '''
     Return the positions of all the balls found in the image.
 
@@ -66,7 +65,7 @@ def get_ball_positions(sel):
         DESCRIPTION.
 
     '''
-    edges = canny(sel, sigma=2, low_threshold=10, high_threshold=50)
+    edges = canny(image, sigma=3, low_threshold=5, high_threshold=10, mask=binary)
     hough_radii = np.arange(4, 15)
     hough_res = hough_circle(edges, hough_radii)
     accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii,
@@ -252,8 +251,8 @@ for i, n in enumerate(names):
     binary = imgepid > thresh
     sel = np.zeros_like(imgepid)
     sel[binary] = imgepid[binary]
-    apeture_centroids = get_apeture_centroids(imgepid)
-    ball_positions = get_ball_positions(sel)
+    apeture_centroids = get_apeture_centroids(imgepid, binary)
+    ball_positions = get_ball_positions(sel, binary)
     # Arranging the poderballs
     ball_positions = sorted(ball_positions, key=itemgetter(0))
     
