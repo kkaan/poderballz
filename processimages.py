@@ -47,6 +47,7 @@ def get_apeture_centroids(image, binary):
     label_image = label(binary)
     apertures = regionprops(label_image)
     centroids = [a.centroid for a in apertures]
+    centroids = [(sub[1], sub[0]) for sub in centroids]
     
     return centroids
 
@@ -71,6 +72,11 @@ def get_ball_positions(image, binary):
     accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii,
                                             total_num_peaks=4)
     ball_positions = list(zip(cx,cy))
+    
+    # order balls by y position.
+    # - we will have to generalise this for geometry agnostic behaviour
+    ball_positions = sorted(ball_positions, key=itemgetter(1)) 
+    
     return ball_positions
 
 
@@ -162,7 +168,7 @@ def plot_balls():
     ax2.plot(g, b3y, 'go', label = 'B3', markersize=1)
     ax2.plot(g, b4y, 'mo', label = 'B4', markersize=1)
     ax2.set_xlabel('Gantry')
-    ax2.set_ylabel('X position of the balls')
+    ax2.set_ylabel('Y position of the balls')
     
     
     plt.show()
@@ -194,11 +200,11 @@ def plot_coords_on_images(image, apertures, balls):
 
     
     for a in apertures:
-            ax.plot(a[1], a[0], color="darkred", marker='x', 
+            ax.plot(a[0], a[1], color="darkred", marker='x', 
                     linewidth=3, markersize=5)
     
     for b in balls:
-            ax.plot(b[1], b[0], color="darkblue",marker='o', 
+            ax.plot(b[0], b[1], color="darkblue",marker='o', 
                     linewidth=3, markersize=2)
     
     ax.imshow(image)
@@ -251,11 +257,9 @@ for i, n in enumerate(names):
     binary = imgepid > thresh
     sel = np.zeros_like(imgepid)
     sel[binary] = imgepid[binary]
-    apeture_centroids = get_apeture_centroids(imgepid, binary)
+    apeture_centroids = get_apeture_centroids(sel, binary)
     ball_positions = get_ball_positions(sel, binary)
-    # Arranging the poderballs
-    ball_positions = sorted(ball_positions, key=itemgetter(0))
-    
+        
     if len(apeture_centroids) == len(apeture_centroids) == 4:
         image_df.at[i, 'EPIDApertures'] = apeture_centroids
         image_df.at[i, 'EPIDBalls'] = ball_positions
