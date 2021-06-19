@@ -43,9 +43,6 @@ sel = np.zeros_like(image)
 sel[binary] = image[binary]
 
 def get_apeture_centroids(image):
-    thresh = threshold_otsu(image)
-    binary = image > thresh
-    
     label_image = label(binary)
     apertures = regionprops(label_image)
     centroids = [a.centroid for a in apertures]
@@ -93,13 +90,11 @@ def get_apeture_centroids(image):
 
 contours, centroids = get_apeture_centroids(image)
 
-edges = canny(sel, sigma=2, low_threshold=10, high_threshold=50)
+edges = canny(image, sigma=3, low_threshold=5, high_threshold=10, mask=binary)
 
-
-
-# fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 3))
-# ax.imshow(edges, cmap='gray')
-# ax.set_title('lowT=0, highT=50')
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 3))
+ax.imshow(edges, cmap='gray')
+ax.set_title('lowT=0, highT=50')
 
 # Detect two radii
 hough_radii = np.arange(4, 15)
