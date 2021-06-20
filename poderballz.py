@@ -6,6 +6,7 @@ Process images and DRRs from the PoderPhan VMAT Hidden Target Tests
 Output the deviations in measured positions from the DRR positions.
 
 
+
 @author: kaan
 """
 import sys
@@ -122,9 +123,6 @@ def update_progress(progress):
     sys.stdout.flush()
     
 
-
-
-
 # Plotting the balls
 def plot_balls():
     """
@@ -222,26 +220,31 @@ drrfolder = data_folder / 'DRR'
 mlcfolder = data_folder / 'MLC'
 
 #create dataframe with gantry angles and filenames
-image_df = pandas.read_csv(frameinfo, header=None, names=["Gantry", 
-                                                          "filename", 
-                                                          "EPIDBalls", 
-                                                          "EPIDApertures", 
-                                                          "DRRBalls", 
-                                                          "DRRApertures"])
 
-#some extra formatting of the dataframe
-image_df['EPIDBalls'] = image_df['EPIDBalls'].astype(object)
-image_df['EPIDApertures'] = image_df['EPIDApertures'].astype(object)
+item_type = ["EPIDBalls","EPIDApetures","DRRBalls","DRRApetures"]
+num_of_balls = 4
+item_number = list(range(1,num_of_balls+1))
+axes = ['x', 'y']
+mi = pandas.MultiIndex.from_product([item_type, item_number, axes])
+df = pandas.DataFrame(columns=mi)
+gdf=pandas.read_csv(frameinfo, header=None, names=["Gantry"])
+df['Gantry']= gdf['Gantry']
+
+
+# #some extra formatting of the dataframe
+# image_df['EPIDBalls'] = image_df['EPIDBalls'].astype(object)
+# image_df['EPIDApertures'] = image_df['EPIDApertures'].astype(object)
+
         
 #load epid image names
 names = [os.path.basename(x) for x in glob.glob('P:/14 Projects/49_SRS'+
                                                 ' Phantom/Output'+
                                                 ' Images/EPID/*.tif')]
-image_df['filename'] = names
+df['filename'] = names
 
 #get_ballandapeture(files, "EPIDBalls", "EPIDApertures")
 
-progmax = len(image_df)
+progmax = len(df)
 
 #Process all images and save ball and aperture positions.
 cropx = 900
@@ -249,44 +252,53 @@ cropy = 900
 
 for i, n in enumerate(names):
     filename = epidfolder / n
-    imgepid = imageio.imread(filename)
-    imgepid = np.array(imgepid)
+    im = imageio.imread(filename)
+    im = np.array(im)
     
-    imgepid = sparse_image(imgepid, cropx, cropy)
-    thresh = threshold_otsu(imgepid)
-    binary = imgepid > thresh
-    sel = np.zeros_like(imgepid)
-    sel[binary] = imgepid[binary]
+    im = sparse_image(im, cropx, cropy)
+    thresh = threshold_otsu(im)
+    binary = im > thresh
+    sel = np.zeros_like(im)
+    sel[binary] = im[binary]
     apeture_centroids = get_apeture_centroids(sel, binary)
+    apeture_centroids = [item for t in apeture_centroids for item in t]
+    apeture_centroids = [round(item) for item in apeture_centroids]
+    
     ball_positions = get_ball_positions(sel, binary)
-        
-    if len(apeture_centroids) == len(apeture_centroids) == 4:
-        image_df.at[i, 'EPIDApertures'] = apeture_centroids
-        image_df.at[i, 'EPIDBalls'] = ball_positions
+    ball_positions = [item for t in ball_positions for item in t]
+    #the following needs to be changed to fit the new dataframe format:
+    
+    if len(apeture_centroids) == len(ball_positions) == num_of_balls*2:
+        df.at[i, 'EPIDApertures'] = apeture_centroids
+        df.at[i, 'EPIDBalls'] = ball_positions
+    # else:
+    #     raise Exception("Expected number of apetures and balls not found {}" 
+    #                     +"balls and {} apetures".format(len(apeture_centroids),
+    #                                                     len(ball_positions)))
+    
+    # df.at[] is faster than df.loc[] but will preserve data type of df series. 
+    # and it will do it silently. Saving floats in int columns will be lossful
     
     # Progress bar
     update_progress(i/progmax)
 
 
-for i in image_df.loc[50:70].itertuples():
+for i in df.loc[50:70].itertuples():
     filename = i.filename
     filename = epidfolder / filename
-    imgepid = imageio.imread(filename)
-    imgepid = np.array(imgepid)
+    im = imageio.imread(filename)
+    im = np.array(im)
     
     balls = i.EPIDBalls
     aperture = i.EPIDApertures
-    plot_coords_on_images(imgepid, aperture, balls)
+    plot_coords_on_images(im, aperture, balls)
     
 plot_balls()
 
 
 
-
-
-
-
-
+# Scratch
+# TODO: Reformat dataframe to remove tupes and list. Maintain series.
 
 
 
