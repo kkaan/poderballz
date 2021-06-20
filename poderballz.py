@@ -262,19 +262,15 @@ for i, n in enumerate(names):
     sel[binary] = im[binary]
     apeture_centroids = get_apeture_centroids(sel, binary)
     apeture_centroids = [item for t in apeture_centroids for item in t]
-    apeture_centroids = [round(item) for item in apeture_centroids]
+    apeture_centroids = [int(item) for item in apeture_centroids]
     
     ball_positions = get_ball_positions(sel, binary)
     ball_positions = [item for t in ball_positions for item in t]
     #the following needs to be changed to fit the new dataframe format:
     
     if len(apeture_centroids) == len(ball_positions) == num_of_balls*2:
-        df.at[i, 'EPIDApertures'] = apeture_centroids
+        df.at[i, 'EPIDApetures'] = apeture_centroids
         df.at[i, 'EPIDBalls'] = ball_positions
-    # else:
-    #     raise Exception("Expected number of apetures and balls not found {}" 
-    #                     +"balls and {} apetures".format(len(apeture_centroids),
-    #                                                     len(ball_positions)))
     
     # df.at[] is faster than df.loc[] but will preserve data type of df series. 
     # and it will do it silently. Saving floats in int columns will be lossful
@@ -283,17 +279,17 @@ for i, n in enumerate(names):
     update_progress(i/progmax)
 
 
-for i in df.loc[50:70].itertuples():
-    filename = i.filename
-    filename = epidfolder / filename
-    im = imageio.imread(filename)
-    im = np.array(im)
+# for i in df.loc[50:70].itertuples():
+#     filename = i.filename
+#     filename = epidfolder / filename
+#     im = imageio.imread(filename)
+#     im = np.array(im)
     
-    balls = i.EPIDBalls
-    aperture = i.EPIDApertures
-    plot_coords_on_images(im, aperture, balls)
+#     balls = i.EPIDBalls
+#     aperture = i.EPIDApertures
+#     plot_coords_on_images(im, aperture, balls)
     
-plot_balls()
+# plot_balls()
 
 
 
