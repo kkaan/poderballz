@@ -268,9 +268,13 @@ for i, n in enumerate(names):
     ball_positions = [item for t in ball_positions for item in t]
     #the following needs to be changed to fit the new dataframe format:
     
-    if len(apeture_centroids) == len(ball_positions) == num_of_balls*2:
+    try:
         df.at[i, 'EPIDApetures'] = apeture_centroids
         df.at[i, 'EPIDBalls'] = ball_positions
+    except AssertionError as error:
+        print(error)
+        print('Probably found too many balls or apertures."
+              + "Change detection settings')
     
     # df.at[] is faster than df.loc[] but will preserve data type of df series. 
     # and it will do it silently. Saving floats in int columns will be lossful
@@ -294,7 +298,6 @@ for i, n in enumerate(names):
 
 
 # Scratch
-# TODO: Reformat dataframe to remove tupes and list. Maintain series.
 
 
 
