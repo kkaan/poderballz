@@ -221,7 +221,7 @@ mlcfolder = data_folder / 'MLC'
 
 #create dataframe with gantry angles and filenames
 
-item_type = ["EPIDBalls","EPIDApetures","DRRBalls","DRRApetures"]
+item_type = ["EPIDBalls","EPIDApertures","DRRBalls","DRRApetures"]
 num_of_balls = 4
 item_number = list(range(1,num_of_balls+1))
 axes = ['x', 'y']
@@ -269,12 +269,12 @@ for i, n in enumerate(names):
     #the following needs to be changed to fit the new dataframe format:
     
     try:
-        df.at[i, 'EPIDApetures'] = apeture_centroids
+        df.at[i, 'EPIDApertures'] = apeture_centroids
         df.at[i, 'EPIDBalls'] = ball_positions
     except AssertionError as error:
         print(error)
-        print('Probably found too many balls or apertures."
-              + "Change detection settings')
+        print("Probably found too many balls or apertures." +
+              "Change detection settings")
     
     # df.at[] is faster than df.loc[] but will preserve data type of df series. 
     # and it will do it silently. Saving floats in int columns will be lossful
@@ -283,17 +283,29 @@ for i, n in enumerate(names):
     update_progress(i/progmax)
 
 
-# for i in df.loc[50:70].itertuples():
-#     filename = i.filename
-#     filename = epidfolder / filename
-#     im = imageio.imread(filename)
-#     im = np.array(im)
+for i in range(50,71):
+    # test plotting to see if the coordinates makes sense
+    filename = df.loc[i, 'filename'].values[0]
+    filename = epidfolder / filename
+    im = imageio.imread(filename)
+    im = np.array(im)
     
-#     balls = i.EPIDBalls
-#     aperture = i.EPIDApertures
-#     plot_coords_on_images(im, aperture, balls)
+    balls = df.loc[i, 'EPIDBalls'].values
     
-# plot_balls()
+    #convert to format required by plotting function
+    it = iter(balls)
+    balls = [*zip(it,it)]
+    apertures = df.loc[i, 'EPIDApertures'].values
+    
+    #convert to format required by plotting function
+    it = iter(balls)
+    balls = [*zip(it,it)]
+    
+    it = iter(apertures)
+    apertures = [*zip(it,it)]
+    plot_coords_on_images(im, aperture, balls)
+    
+plot_balls()
 
 
 
