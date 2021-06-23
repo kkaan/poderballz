@@ -135,39 +135,55 @@ def plot_balls():
     None.
 
     """
-
+    # TODO: Use dataframe plotting instead.
     # Getting the ball positions in clear plotable structure from the dataframe
-    g = list(image_df.Gantry.values)
-    a = list(image_df.EPIDBalls.values)
+    # g = list(image_df.Gantry.values)
+    # a = list(image_df.EPIDBalls.values)
     
-    b1x = [i[0][0] for i in a]
-    b1y = [i[0][1] for i in a]
+    # b1x = [i[0][0] for i in a]
+    # b1y = [i[0][1] for i in a]
     
-    b2x = [i[1][0] for i in a]
-    b2y = [i[1][1] for i in a]
+    # b2x = [i[1][0] for i in a]
+    # b2y = [i[1][1] for i in a]
     
-    b3x = [i[2][0] for i in a]
-    b3y = [i[2][1] for i in a]
+    # b3x = [i[2][0] for i in a]
+    # b3y = [i[2][1] for i in a]
     
-    b4x = [i[3][0] for i in a]
-    b4y = [i[3][1] for i in a]
+    # b4x = [i[3][0] for i in a]
+    # b4y = [i[3][1] for i in a]
+    
+    # fig, (ax1, ax2) = plt.subplots(2, 1)
+    # fig.suptitle('PoderBallz: A tale of four balls')
+    
+    # ax1.plot(g, b1x, 'ro', label='B1', markersize=1)
+    # ax1.plot(g, b2x, 'bo', label = 'B2', markersize=1) 
+    # ax1.plot(g, b3x, 'go', label = 'B3', markersize=1)
+    # ax1.plot(g, b4x, 'mo', label = 'B4', markersize=1)
+    # ax1.set_ylabel('X position of the balls')
+    
+    # ax2.plot(g, b1y, 'ro', label='B1', markersize=1)
+    # ax2.plot(g, b2y, 'bo', label = 'B2', markersize=1) 
+    # ax2.plot(g, b3y, 'go', label = 'B3', markersize=1)
+    # ax2.plot(g, b4y, 'mo', label = 'B4', markersize=1)
+    # ax2.set_xlabel('Gantry')
+    # ax2.set_ylabel('Y position of the balls')
     
     fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.suptitle('PoderBallz: A tale of four balls')
     
-    ax1.plot(g, b1x, 'ro', label='B1', markersize=1)
-    ax1.plot(g, b2x, 'bo', label = 'B2', markersize=1) 
-    ax1.plot(g, b3x, 'go', label = 'B3', markersize=1)
-    ax1.plot(g, b4x, 'mo', label = 'B4', markersize=1)
-    ax1.set_ylabel('X position of the balls')
+    ax1 = df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 1, 'x'),
+            color='darkred' legend='b1')
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'x'),
+            color='darkblue' legend='b1', ax=ax1)
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 3, 'x'),
+            color='darkgreen' legend='b1', ax=ax1)
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 4, 'x'),
+            color='darkslategrey' legend='b1', ax=ax1)
     
-    ax2.plot(g, b1y, 'ro', label='B1', markersize=1)
-    ax2.plot(g, b2y, 'bo', label = 'B2', markersize=1) 
-    ax2.plot(g, b3y, 'go', label = 'B3', markersize=1)
-    ax2.plot(g, b4y, 'mo', label = 'B4', markersize=1)
-    ax2.set_xlabel('Gantry')
+    ax2 = df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'y'))
+     
+    ax1.set_ylabel('X position of the balls')  
     ax2.set_ylabel('Y position of the balls')
-    
     
     plt.show()
 
@@ -291,10 +307,6 @@ for i in range(50,71):
     im = np.array(im)
     
     balls = df.loc[i, 'EPIDBalls'].values
-    
-    #convert to format required by plotting function
-    it = iter(balls)
-    balls = [*zip(it,it)]
     apertures = df.loc[i, 'EPIDApertures'].values
     
     #convert to format required by plotting function
@@ -303,7 +315,7 @@ for i in range(50,71):
     
     it = iter(apertures)
     apertures = [*zip(it,it)]
-    plot_coords_on_images(im, aperture, balls)
+    plot_coords_on_images(im, apertures, balls)
     
 plot_balls()
 
