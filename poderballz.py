@@ -171,8 +171,7 @@ def plot_balls():
     fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.suptitle('PoderBallz: A tale of four balls')
     
-    ax1 = df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 1, 'x'),
-            color='darkred' legend='b1')
+    ax1 = df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 1, 'x'), color='darkred' legend='b1')
     df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'x'),
             color='darkblue' legend='b1', ax=ax1)
     df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 3, 'x'),
