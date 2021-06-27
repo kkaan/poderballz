@@ -135,7 +135,6 @@ def plot_balls():
     None.
 
     """
-    # TODO: Use dataframe plotting instead.
     # Getting the ball positions in clear plotable structure from the dataframe
     # g = list(image_df.Gantry.values)
     # a = list(image_df.EPIDBalls.values)
@@ -171,18 +170,28 @@ def plot_balls():
     fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.suptitle('PoderBallz: A tale of four balls')
     
-    ax1 = df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 1, 'x'), color='darkred' legend='b1')
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'x'),
-            color='darkblue' legend='b1', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 3, 'x'),
-            color='darkgreen' legend='b1', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 4, 'x'),
-            color='darkslategrey' legend='b1', ax=ax1)
+    #TODO: Generalise in for loop for any number of balls:
     
-    ax2 = df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'y'))
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 1, 'x'), s=3,
+            color='darkred', label='b1', ax=ax1)
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'x'), s=3,
+            color='darkblue', label='b2', ax=ax1)
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 3, 'x'), s=3,
+            color='darkgreen', label='b3', ax=ax1)
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 4, 'x'), s=3,
+            color='darkslategrey', label='b4', ax=ax1)
+    
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 1, 'y'), s=3,
+            color='darkred', label='b1', ax=ax2)
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'y'), s=3,
+            color='darkblue', label='b2', ax=ax2)
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 3, 'y'), s=3,
+            color='darkgreen', label='b3', ax=ax2)
+    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 4, 'y'), s=3,
+            color='darkslategrey', label='b4', ax=ax2)
      
-    ax1.set_ylabel('X position of the balls')  
-    ax2.set_ylabel('Y position of the balls')
+    ax1.set_ylabel('X position')  
+    ax2.set_ylabel('Y position')
     
     plt.show()
 
