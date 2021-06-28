@@ -47,7 +47,12 @@ def get_apeture_centroids(image, binary):
     """
     label_image = label(binary)
     apertures = regionprops(label_image)
-    centroids = [a.centroid for a in apertures]
+    centroids = [a.centroid for a in apertures if a.convex_area > 1000]
+    
+    #TODO: Generalise the above so that we aren't hard coding area limit.
+    # Change code so that the largest n areas are grabbed where n is number
+    # of balls/aperturs.
+        
     centroids = [(sub[1], sub[0]) for sub in centroids]
     
     return centroids
@@ -75,7 +80,7 @@ def get_ball_positions(image, binary):
     ball_positions = list(zip(cx,cy))
     
     # order balls by y position.
-    # - we will have to generalise this for geometry agnostic behaviour
+    #TODO - we will have to generalise this for geometry agnostic behaviour
     ball_positions = sorted(ball_positions, key=itemgetter(1)) 
     
     return ball_positions
@@ -124,7 +129,7 @@ def update_progress(progress):
     
 
 # Plotting the balls
-def plot_balls():
+def plot_against_gantry(what):
     """
     
     Plots ball positions over gantry agnles
@@ -135,67 +140,39 @@ def plot_balls():
     None.
 
     """
-    # Getting the ball positions in clear plotable structure from the dataframe
-    # g = list(image_df.Gantry.values)
-    # a = list(image_df.EPIDBalls.values)
-    
-    # b1x = [i[0][0] for i in a]
-    # b1y = [i[0][1] for i in a]
-    
-    # b2x = [i[1][0] for i in a]
-    # b2y = [i[1][1] for i in a]
-    
-    # b3x = [i[2][0] for i in a]
-    # b3y = [i[2][1] for i in a]
-    
-    # b4x = [i[3][0] for i in a]
-    # b4y = [i[3][1] for i in a]
-    
-    # fig, (ax1, ax2) = plt.subplots(2, 1)
-    # fig.suptitle('PoderBallz: A tale of four balls')
-    
-    # ax1.plot(g, b1x, 'ro', label='B1', markersize=1)
-    # ax1.plot(g, b2x, 'bo', label = 'B2', markersize=1) 
-    # ax1.plot(g, b3x, 'go', label = 'B3', markersize=1)
-    # ax1.plot(g, b4x, 'mo', label = 'B4', markersize=1)
-    # ax1.set_ylabel('X position of the balls')
-    
-    # ax2.plot(g, b1y, 'ro', label='B1', markersize=1)
-    # ax2.plot(g, b2y, 'bo', label = 'B2', markersize=1) 
-    # ax2.plot(g, b3y, 'go', label = 'B3', markersize=1)
-    # ax2.plot(g, b4y, 'mo', label = 'B4', markersize=1)
-    # ax2.set_xlabel('Gantry')
-    # ax2.set_ylabel('Y position of the balls')
+
     
     fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.suptitle('PoderBallz: A tale of four balls')
     
     #TODO: Generalise in for loop for any number of balls:
     
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 1, 'x'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 1, 'x'), s=3,
             color='darkred', label='b1', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'x'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 2, 'x'), s=3,
             color='darkblue', label='b2', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 3, 'x'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 3, 'x'), s=3,
             color='darkgreen', label='b3', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 4, 'x'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 4, 'x'), s=3,
             color='darkslategrey', label='b4', ax=ax1)
     
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 1, 'y'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 1, 'y'), s=3,
             color='darkred', label='b1', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 2, 'y'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 2, 'y'), s=3,
             color='darkblue', label='b2', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 3, 'y'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 3, 'y'), s=3,
             color='darkgreen', label='b3', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=('EPIDBalls', 4, 'y'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 4, 'y'), s=3,
             color='darkslategrey', label='b4', ax=ax2)
      
     ax1.set_ylabel('X position')  
     ax2.set_ylabel('Y position')
     
     plt.show()
+    
+    
 
-def plot_coords_on_images(image, apertures, balls):
+def plot_coords_on_images(what):
     """
     
     Plots the coordinates of balls and apertures on the images.
@@ -214,29 +191,193 @@ def plot_coords_on_images(image, apertures, balls):
     None.
 
     """
-    image = sparse_image(image, 900, 900)
+    if what == 'drr':
+        folder == drrfolder
+        aperture_dflabel == 'DRRApertures'
+        balls_dflabel == 'DRRBalls'
+    elif what == 'epid':
+        folder = epidfolder
+        aperture_dflabel == 'EPIDApertures'
+        balls_dflabel == 'EPIDBalls'
+        
     
     
-    fig, ax = plt.subplots()
-    image = color.gray2rgb(image)
+    for i in range(50,71):
+        # test plotting to see if the coordinates makes sense
+        filename = df.loc[i, 'filename'].values[0]
+        filename = folder / filename
+        im = imageio.imread(filename)
+        im = np.array(im)
+        
+        if what == 'epid':
+            balls = df.loc[i, balls_dflabel].values
+            apertures = df.loc[i, aperture_dflabel].values
+        elif what == 'drr':
+            balls = df.loc[i, balls_dflabel].values
+            apertures = df.loc[i, aperture_dflabel].values 
+        #convert to format required by plotting function
+        it = iter(balls)
+        balls = [*zip(it,it)]
+        
+        it = iter(apertures)
+        apertures = [*zip(it,it)]
+        image = sparse_image(image, 900, 900)
+        
+        
+        fig, ax = plt.subplots()
+        image = color.gray2rgb(image)
+    
+        
+        for a in apertures:
+                ax.plot(a[0], a[1], color="darkred", marker='x', 
+                        linewidth=3, markersize=5)
+        
+        for b in balls:
+                ax.plot(b[0], b[1], color="darkblue",marker='o', 
+                        linewidth=3, markersize=2)
+        
+        ax.imshow(image)
+        plt.show()
+    
+def get_epid_balls_and_apertures(names):
+    """
+    Gets the ball and apeture positions from the EPID image.
 
-    
-    for a in apertures:
-            ax.plot(a[0], a[1], color="darkred", marker='x', 
-                    linewidth=3, markersize=5)
-    
-    for b in balls:
-            ax.plot(b[0], b[1], color="darkblue",marker='o', 
-                    linewidth=3, markersize=2)
-    
-    ax.imshow(image)
-    plt.show()
-    
-#def get_ballandapeture(files, balls_col_name, apetures_col_name):
-    
+    Parameters
+    ----------
+    files : list of strings
+        contains the names of tif image files.
 
-#load folder
-data_folder = 'P:/14 Projects/49_SRS Phantom/Output Images/'
+    Returns
+    -------
+    None.
+
+    """
+
+    for i, n in enumerate(names):
+        filename = epidfolder / n
+        im = imageio.imread(filename)
+        im = np.array(im)
+        
+        im = sparse_image(im, cropx, cropy)
+        thresh = threshold_otsu(im)
+        binary = im > thresh
+        sel = np.zeros_like(im)
+        sel[binary] = im[binary]
+    
+        apeture_centroids = get_apeture_centroids(sel, binary)
+        apeture_centroids = [item for t in apeture_centroids for item in t]
+        apeture_centroids = [int(item) for item in apeture_centroids]
+   
+        ball_positions = get_ball_positions(sel, binary)
+        ball_positions = [item for t in ball_positions for item in t]
+    
+    
+        try:
+            df.at[i, 'EPIDApertures'] = apeture_centroids
+            df.at[i, 'EPIDBalls'] = ball_positions
+                # df.at[] is faster than df.loc[] but will preserve data 
+                # type of df series. And it will do it silently. Saving 
+                # floats in int columns will be lossful.
+        except AssertionError as error:
+            print(error)
+            print("Probably found too many balls or apertures." +
+                  "Change detection settings")
+        
+        # Progress bar
+        update_progress(i/progmax)
+
+
+def get_drr_balls(names):
+    """
+    Gets the ball positions from the drr image.
+
+    Parameters
+    ----------
+    files : list of strings
+        contains the names of tif image files.
+
+    Returns
+    -------
+    None.
+
+    """
+
+    for i, n in enumerate(names):
+        filename = drrfolder / n
+        im = imageio.imread(filename)
+        im = np.array(im)
+        
+        im = sparse_image(im, cropx, cropy)
+        thresh = threshold_otsu(im)
+        binary = im > thresh
+        sel = np.zeros_like(im)
+        sel[binary] = im[binary]
+    
+        ball_positions = get_ball_positions(sel, binary)
+        ball_positions = [item for t in ball_positions for item in t]
+    
+    
+        try:
+            df.at[i, 'DRRBalls'] = ball_positions
+                # df.at[] is faster than df.loc[] but will preserve data 
+                # type of df series. And it will do it silently. Saving 
+                # floats in int columns will be lossful.
+        except AssertionError as error:
+            print(error)
+            print("Probably found too many balls or apertures." + 
+                  "Change detection settings")
+        
+        # Progress bar
+        update_progress(i/progmax)
+
+def get_drr_apertures(names):
+    """
+    Gets apeture positions from the mlc image.
+
+    Parameters
+    ----------
+    files : list of strings
+        contains the names of tif image files.
+
+    Returns
+    -------
+    None.
+
+    """
+
+    for i, n in enumerate(names):
+        filename = mlcfolder / n
+        im = imageio.imread(filename)
+        im = np.array(im)
+        
+        im = sparse_image(im, cropx, cropy)
+        thresh = threshold_otsu(im)
+        binary = im > thresh
+        sel = np.zeros_like(im)
+        sel[binary] = im[binary]
+    
+        apeture_centroids = get_apeture_centroids(sel, binary)
+        apeture_centroids = [item for t in apeture_centroids for item in t]
+        apeture_centroids = [int(item) for item in apeture_centroids]
+   
+        try:
+            df.at[i, 'DRRApertures'] = apeture_centroids
+                # df.at[] is faster than df.loc[] but will preserve data 
+                # type of df series. And it will do it silently. Saving 
+                # floats in int columns will be lossful.
+        except AssertionError as error:
+            print(error)
+            print("Probably found too many balls or apertures." +
+                  "Change detection settings")
+        
+        # Progress bar
+        update_progress(i/progmax)
+
+
+
+data_folder = ('C:/Users/kanke/OneDrive/Work Miscellenous/SRS Geometric '+
+                'Accuracy/PoderBallz/Output Images')
 data_folder = Path(data_folder)
 frameinfo = data_folder / 'Gantry_Angles.csv'
 epidfolder = data_folder / 'EPID'
@@ -245,7 +386,7 @@ mlcfolder = data_folder / 'MLC'
 
 #create dataframe with gantry angles and filenames
 
-item_type = ["EPIDBalls","EPIDApertures","DRRBalls","DRRApetures"]
+item_type = ["EPIDBalls","EPIDApertures","DRRBalls","DRRApertures"]
 num_of_balls = 4
 item_number = list(range(1,num_of_balls+1))
 axes = ['x', 'y']
@@ -261,12 +402,14 @@ df['Gantry']= gdf['Gantry']
 
         
 #load epid image names
-names = [os.path.basename(x) for x in glob.glob('P:/14 Projects/49_SRS'+
-                                                ' Phantom/Output'+
-                                                ' Images/EPID/*.tif')]
+names = [os.path.basename(x) for x in glob.glob('C:/Users/kanke/OneDrive/'+
+                                                'Work Miscellenous/SRS'+
+                                                ' Geometric Accuracy/'+
+                                                'PoderBallz/Output '+
+                                                'Images/EPID/*.tif')]
 df['filename'] = names
 
-#get_ballandapeture(files, "EPIDBalls", "EPIDApertures")
+
 
 progmax = len(df)
 
@@ -274,58 +417,17 @@ progmax = len(df)
 cropx = 900
 cropy = 900
 
-for i, n in enumerate(names):
-    filename = epidfolder / n
-    im = imageio.imread(filename)
-    im = np.array(im)
-    
-    im = sparse_image(im, cropx, cropy)
-    thresh = threshold_otsu(im)
-    binary = im > thresh
-    sel = np.zeros_like(im)
-    sel[binary] = im[binary]
-    apeture_centroids = get_apeture_centroids(sel, binary)
-    apeture_centroids = [item for t in apeture_centroids for item in t]
-    apeture_centroids = [int(item) for item in apeture_centroids]
-    
-    ball_positions = get_ball_positions(sel, binary)
-    ball_positions = [item for t in ball_positions for item in t]
-    #the following needs to be changed to fit the new dataframe format:
-    
-    try:
-        df.at[i, 'EPIDApertures'] = apeture_centroids
-        df.at[i, 'EPIDBalls'] = ball_positions
-    except AssertionError as error:
-        print(error)
-        print("Probably found too many balls or apertures." +
-              "Change detection settings")
-    
-    # df.at[] is faster than df.loc[] but will preserve data type of df series. 
-    # and it will do it silently. Saving floats in int columns will be lossful
-    
-    # Progress bar
-    update_progress(i/progmax)
 
+# get_epid_balls_and_apertures(names)
 
-for i in range(50,71):
-    # test plotting to see if the coordinates makes sense
-    filename = df.loc[i, 'filename'].values[0]
-    filename = epidfolder / filename
-    im = imageio.imread(filename)
-    im = np.array(im)
+# get_drr_balls(names)
+
+get_drr_apertures(names)
+
+# plot_coords_on_images('drr') # Allowed arguments:'drr', 'epid'
     
-    balls = df.loc[i, 'EPIDBalls'].values
-    apertures = df.loc[i, 'EPIDApertures'].values
-    
-    #convert to format required by plotting function
-    it = iter(balls)
-    balls = [*zip(it,it)]
-    
-    it = iter(apertures)
-    apertures = [*zip(it,it)]
-    plot_coords_on_images(im, apertures, balls)
-    
-plot_balls()
+
+# plot_against_gantry('EDIDBalls') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
 
 
 
