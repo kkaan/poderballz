@@ -26,7 +26,7 @@ from skimage.measure import regionprops, label
 from skimage.filters import threshold_otsu
 
 
-def get_apeture_centroids(image, binary):
+def get_apeture_centroids(image, binary, number_of_balls
     """
     Calculate the locations of all the mlc defined aperture positions in
     the image. The location will be returned as the coordinates of the centre 
@@ -45,9 +45,12 @@ def get_apeture_centroids(image, binary):
         list of apertures found in increasing y coordingates.
 
     """
+    
     label_image = label(binary)
     apertures = regionprops(label_image)
-    centroids = [a.centroid for a in apertures if a.convex_area > 1000]
+    apertures.sort(key=lambda a: a.convex_area, reverse=True)
+    apertures = apertures[: number_of_balls]
+    centroids = [a.centroid for a in apertures]
     
     #TODO: Generalise the above so that we aren't hard coding area limit.
     # Change code so that the largest n areas are grabbed where n is number
@@ -57,7 +60,7 @@ def get_apeture_centroids(image, binary):
     
     return centroids
 
-def get_ball_positions(image, binary):
+def get_ball_positions(image, binary, number_of_balls):
     '''
     Return the positions of all the balls found in the image.
 
@@ -76,7 +79,7 @@ def get_ball_positions(image, binary):
     hough_radii = np.arange(4, 15)
     hough_res = hough_circle(edges, hough_radii)
     accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii,
-                                            total_num_peaks=4)
+                                            total_num_peaks=number_of_balls)
     ball_positions = list(zip(cx,cy))
     
     # order balls by y position.
@@ -239,7 +242,7 @@ def plot_coords_on_images(what):
         ax.imshow(image)
         plt.show()
     
-def get_epid_balls_and_apertures(names):
+def get_epid_balls_and_apertures(names, number_of_balls
     """
     Gets the ball and apeture positions from the EPID image.
 
@@ -265,11 +268,11 @@ def get_epid_balls_and_apertures(names):
         sel = np.zeros_like(im)
         sel[binary] = im[binary]
     
-        apeture_centroids = get_apeture_centroids(sel, binary)
+        apeture_centroids = get_apeture_centroids(sel, binary, number_of_balls)
         apeture_centroids = [item for t in apeture_centroids for item in t]
         apeture_centroids = [int(item) for item in apeture_centroids]
    
-        ball_positions = get_ball_positions(sel, binary)
+        ball_positions = get_ball_positions(sel, binary, number_of_balls)
         ball_positions = [item for t in ball_positions for item in t]
     
     
@@ -357,12 +360,12 @@ def get_drr_apertures(names):
         sel = np.zeros_like(im)
         sel[binary] = im[binary]
     
-        apeture_centroids = get_apeture_centroids(sel, binary)
-        apeture_centroids = [item for t in apeture_centroids for item in t]
-        apeture_centroids = [int(item) for item in apeture_centroids]
+        aperture_centroids = get_apeture_centroids(sel, binary)
+        aperture_centroids = [item for t in aperture_centroids for item in t]
+        aperture_centroids = [int(item) for item in aperture_centroids]
    
         try:
-            df.at[i, 'DRRApertures'] = apeture_centroids
+            df.at[i, 'DRRApertures'] = aperture_centroids
                 # df.at[] is faster than df.loc[] but will preserve data 
                 # type of df series. And it will do it silently. Saving 
                 # floats in int columns will be lossful.
