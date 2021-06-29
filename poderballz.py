@@ -26,7 +26,7 @@ from skimage.measure import regionprops, label
 from skimage.filters import threshold_otsu
 
 
-def get_apeture_centroids(image, binary, number_of_balls
+def get_apeture_centroids(image, binary, number_of_balls):
     """
     Calculate the locations of all the mlc defined aperture positions in
     the image. The location will be returned as the coordinates of the centre 
@@ -43,18 +43,15 @@ def get_apeture_centroids(image, binary, number_of_balls
     -------
     centroids : list of tuples
         list of apertures found in increasing y coordingates.
-
+        
     """
     
     label_image = label(binary)
     apertures = regionprops(label_image)
     apertures.sort(key=lambda a: a.convex_area, reverse=True)
-    apertures = apertures[: number_of_balls]
-    centroids = [a.centroid for a in apertures]
-    
-    #TODO: Generalise the above so that we aren't hard coding area limit.
-    # Change code so that the largest n areas are grabbed where n is number
-    # of balls/aperturs.
+    apertures = apertures[: number_of_balls] #just grab the largest apertures
+    centroids = [a.centroid for a in apertures] 
+    centroids = sorted(centroids, key=lambda a: a[1]) #sort by y value
         
     centroids = [(sub[1], sub[0]) for sub in centroids]
     
@@ -242,7 +239,7 @@ def plot_coords_on_images(what):
         ax.imshow(image)
         plt.show()
     
-def get_epid_balls_and_apertures(names, number_of_balls
+def get_epid_balls_and_apertures(names, number_of_balls):
     """
     Gets the ball and apeture positions from the EPID image.
 
@@ -334,7 +331,7 @@ def get_drr_balls(names):
         # Progress bar
         update_progress(i/progmax)
 
-def get_drr_apertures(names):
+def get_drr_apertures(names, number_of_balls):
     """
     Gets apeture positions from the mlc image.
 
@@ -360,7 +357,7 @@ def get_drr_apertures(names):
         sel = np.zeros_like(im)
         sel[binary] = im[binary]
     
-        aperture_centroids = get_apeture_centroids(sel, binary)
+        aperture_centroids = get_apeture_centroids(sel, binary, number_of_balls)
         aperture_centroids = [item for t in aperture_centroids for item in t]
         aperture_centroids = [int(item) for item in aperture_centroids]
    
@@ -420,17 +417,17 @@ progmax = len(df)
 cropx = 900
 cropy = 900
 
-
+number_of_balls = 4
 # get_epid_balls_and_apertures(names)
 
 # get_drr_balls(names)
 
-get_drr_apertures(names)
+get_drr_apertures(names, number_of_balls)
 
 # plot_coords_on_images('drr') # Allowed arguments:'drr', 'epid'
     
 
-# plot_against_gantry('EDIDBalls') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
+plot_against_gantry('DRRBalls') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
 
 
 
