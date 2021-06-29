@@ -95,7 +95,7 @@ def sparse_image(img,cropx,cropy):
 
 
 #progress bar
-def update_progress(progress):
+def update_progress(progress, subtext):
     '''
     Creates a progress bar in standard output.
 
@@ -109,7 +109,7 @@ def update_progress(progress):
     None.
 
     '''
-    barLength = 100 # Modify this to change the length of the progress bar
+    barLength = 20 # Modify this to change the length of the progress bar
     status = ""
     if isinstance(progress, int):
         progress = float(progress)
@@ -123,7 +123,7 @@ def update_progress(progress):
         progress = 1
         status = "Done...\r\n"
     block = int(round(barLength*progress))
-    text = "\rPercent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), int(progress*100), status)
+    text = "\rPercent: [{0}] {1}% {2} {3}".format( "#"*block + "-"*(barLength-block), int(progress*100), status, subtext)
     sys.stdout.write(text)
     sys.stdout.flush()
     
@@ -284,11 +284,14 @@ def get_epid_balls_and_apertures(names, num_of_balls):
             print("Probably found too many balls or apertures." +
                   "Change detection settings")
         
+        #current status
+        text = "Finding balls and apertures in EPID {0}".format(n)
+        
         # Progress bar
-        update_progress(i/progmax)
+        update_progress(i/progmax, text)
 
 
-def get_drr_balls(names):
+def get_drr_balls(names, num_of_balls):
     """
     Gets the ball positions from the drr image.
 
@@ -314,7 +317,7 @@ def get_drr_balls(names):
         sel = np.zeros_like(im)
         sel[binary] = im[binary]
     
-        ball_positions = get_ball_positions(sel, binary)
+        ball_positions = get_ball_positions(sel, binary, num_of_balls)
         ball_positions = [item for t in ball_positions for item in t]
     
     
@@ -329,6 +332,8 @@ def get_drr_balls(names):
                   "Change detection settings")
         
         # Progress bar
+        
+        text = "Finding balls in DRR {0}".format(n)
         update_progress(i/progmax)
 
 def get_drr_apertures(names, num_of_balls):
@@ -371,7 +376,11 @@ def get_drr_apertures(names, num_of_balls):
             print("Probably found too many balls or apertures." +
                   "Change detection settings")
         
-        # Progress bar
+        text = "\rProcessing DRRs, find apertures in {0}".format(n)
+        sys.stdout.write(text)
+        sys.stdout.flush()
+        
+        text = "Finding apertures in MLC {0}".format(n)
         update_progress(i/progmax)
 
 
@@ -413,21 +422,18 @@ df['filename'] = names
 
 progmax = len(df)-1
 
-#Process all images and save ball and aperture positions.
 cropx = 900
 cropy = 900
 
-
-# get_epid_balls_and_apertures(names)
-
-# get_drr_balls(names)
-
+#Process all images and save ball and aperture positions.
+get_epid_balls_and_apertures(names, num_of_balls)
+get_drr_balls(names, num_of_balls)
 get_drr_apertures(names, num_of_balls)
 
-# plot_coords_on_images('drr') # Allowed arguments:'drr', 'epid'
+#plot_coords_on_images('drr') # Allowed arguments:'drr', 'epid'
     
 
-plot_against_gantry('DRRApertures') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
+#plot_against_gantry('DRRApertures') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
 
 
 
