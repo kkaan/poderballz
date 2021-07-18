@@ -123,7 +123,11 @@ def update_progress(progress, subtext):
         progress = 1
         status = "Done...\r\n"
     block = int(round(barLength*progress))
-    text = "\rPercent: [{0}] {1}% {2} {3}".format( "#"*block + "-"*(barLength-block), int(progress*100), status, subtext)
+    text = "\rPercent: [{0}] {1}% {2} {3}".format( "#"*block + 
+                                                  "-"*(barLength-block),
+                                                  int(progress*100),
+                                                  status,
+                                                  subtext)
     sys.stdout.write(text)
     sys.stdout.flush()
     
@@ -192,13 +196,13 @@ def plot_coords_on_images(what):
 
     """
     if what == 'drr':
-        folder == drrfolder
-        aperture_dflabel == 'DRRApertures'
-        balls_dflabel == 'DRRBalls'
+        folder = drrfolder
+        aperture_dflabel = 'DRRApertures'
+        balls_dflabel = 'DRRBalls'
     elif what == 'epid':
         folder = epidfolder
-        aperture_dflabel == 'EPIDApertures'
-        balls_dflabel == 'EPIDBalls'
+        aperture_dflabel = 'EPIDApertures'
+        balls_dflabel = 'EPIDBalls'
         
     
     
@@ -221,7 +225,7 @@ def plot_coords_on_images(what):
         
         it = iter(apertures)
         apertures = [*zip(it,it)]
-        image = sparse_image(image, 900, 900)
+        image = sparse_image(im, 900, 900)
         
         
         fig, ax = plt.subplots()
@@ -334,7 +338,7 @@ def get_drr_balls(names, num_of_balls):
         # Progress bar
         
         text = "Finding balls in DRR {0}".format(n)
-        update_progress(i/progmax)
+        update_progress(i/progmax, text)
 
 def get_drr_apertures(names, num_of_balls):
     """
@@ -381,12 +385,11 @@ def get_drr_apertures(names, num_of_balls):
         sys.stdout.flush()
         
         text = "Finding apertures in MLC {0}".format(n)
-        update_progress(i/progmax)
+        update_progress(i/progmax, text)
 
 
-
-data_folder = ('C:/Users/kanke/OneDrive/Work Miscellenous/SRS Geometric '+
-                'Accuracy/PoderBallz/Output Images')
+fstring = 'P:/14 Projects/49_SRS Phantom/Output Images'
+data_folder = ('P:/14 Projects/49_SRS Phantom/Output Images')
 data_folder = Path(data_folder)
 frameinfo = data_folder / 'Gantry_Angles.csv'
 epidfolder = data_folder / 'EPID'
@@ -411,11 +414,8 @@ df['Gantry']= gdf['Gantry']
 
         
 #load epid image names
-names = [os.path.basename(x) for x in glob.glob('C:/Users/kanke/OneDrive/'+
-                                                'Work Miscellenous/SRS'+
-                                                ' Geometric Accuracy/'+
-                                                'PoderBallz/Output '+
-                                                'Images/EPID/*.tif')]
+
+names = [os.path.basename(x) for x in glob.glob(fstring+'/EPID/*.tif')]
 df['filename'] = names
 
 
@@ -430,13 +430,13 @@ get_epid_balls_and_apertures(names, num_of_balls)
 get_drr_balls(names, num_of_balls)
 get_drr_apertures(names, num_of_balls)
 
-#plot_coords_on_images('drr') # Allowed arguments:'drr', 'epid'
+plot_coords_on_images('epid') # Allowed arguments:'drr', 'epid'
     
 
-#plot_against_gantry('DRRApertures') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
+plot_against_gantry('DRRApertures') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
 
 
-
+plot_against_gantry('EPIDBalls')
 # Scratch
 
 
