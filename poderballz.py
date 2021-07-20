@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May  6 14:19:56 2021
+.. module:: poderballz
+   :platform: Windows
+   :synopsis: grab some balls.
 
-Process images and DRRs from the PoderPhan VMAT Hidden Target Tests
-Output the deviations in measured positions from the DRR positions.
+.. moduleauthor:: Kaan Kankean <kankean.kandasamy@health.nsw.gov.au>
 
-
-
-@author: kaan
 """
+
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -388,56 +387,58 @@ def get_drr_apertures(names, num_of_balls):
         update_progress(i/progmax, text)
 
 
-fstring = 'P:/14 Projects/49_SRS Phantom/Output Images'
-data_folder = ('P:/14 Projects/49_SRS Phantom/Output Images')
-data_folder = Path(data_folder)
-frameinfo = data_folder / 'Gantry_Angles.csv'
-epidfolder = data_folder / 'EPID'
-drrfolder = data_folder / 'DRR'
-mlcfolder = data_folder / 'MLC'
-
-#create dataframe with gantry angles and filenames
-
-item_type = ["EPIDBalls","EPIDApertures","DRRBalls","DRRApertures"]
-num_of_balls = 4
-item_number = list(range(1,num_of_balls+1))
-axes = ['x', 'y']
-mi = pandas.MultiIndex.from_product([item_type, item_number, axes])
-df = pandas.DataFrame(columns=mi)
-gdf=pandas.read_csv(frameinfo, header=None, names=["Gantry"])
-df['Gantry']= gdf['Gantry']
-
-
-# #some extra formatting of the dataframe
-# image_df['EPIDBalls'] = image_df['EPIDBalls'].astype(object)
-# image_df['EPIDApertures'] = image_df['EPIDApertures'].astype(object)
-
-        
-#load epid image names
-
-names = [os.path.basename(x) for x in glob.glob(fstring+'/EPID/*.tif')]
-df['filename'] = names
-
-
-
-progmax = len(df)-1
-
-cropx = 900
-cropy = 900
-
-#Process all images and save ball and aperture positions.
-get_epid_balls_and_apertures(names, num_of_balls)
-get_drr_balls(names, num_of_balls)
-get_drr_apertures(names, num_of_balls)
-
-plot_coords_on_images('epid') # Allowed arguments:'drr', 'epid'
+if __name__ == "__main__": 
+    fstring = 'P:/14 Projects/49_SRS Phantom/Output Images'
+    data_folder = ('P:/14 Projects/49_SRS Phantom/Output Images')
+    data_folder = Path(data_folder)
+    frameinfo = data_folder / 'Gantry_Angles.csv'
+    epidfolder = data_folder / 'EPID'
+    drrfolder = data_folder / 'DRR'
+    mlcfolder = data_folder / 'MLC'
     
+    #create dataframe with gantry angles and filenames
+    
+    item_type = ["EPIDBalls","EPIDApertures","DRRBalls","DRRApertures"]
+    num_of_balls = 4
+    item_number = list(range(1,num_of_balls+1))
+    axes = ['x', 'y']
+    mi = pandas.MultiIndex.from_product([item_type, item_number, axes])
+    df = pandas.DataFrame(columns=mi)
+    gdf=pandas.read_csv(frameinfo, header=None, names=["Gantry"])
+    df['Gantry']= gdf['Gantry']
+    
+    
+    # #some extra formatting of the dataframe
+    # image_df['EPIDBalls'] = image_df['EPIDBalls'].astype(object)
+    # image_df['EPIDApertures'] = image_df['EPIDApertures'].astype(object)
+    
+            
+    #load epid image names
+    
+    names = [os.path.basename(x) for x in glob.glob(fstring+'/EPID/*.tif')]
+    df['filename'] = names
+    
+    
+    
+    progmax = len(df)-1
+    
+    cropx = 900
+    cropy = 900
+    
+    #Process all images and save ball and aperture positions.
+    get_epid_balls_and_apertures(names, num_of_balls)
+    get_drr_balls(names, num_of_balls)
+    get_drr_apertures(names, num_of_balls)
+    
+    plot_coords_on_images('epid') # Allowed arguments:'drr', 'epid'
+        
+    
+    plot_against_gantry('DRRApertures') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
+    
+    
+    plot_against_gantry('EPIDBalls')
+    # Scratch
 
-plot_against_gantry('DRRApertures') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
-
-
-plot_against_gantry('EPIDBalls')
-# Scratch
 
 
 
