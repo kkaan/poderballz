@@ -146,30 +146,38 @@ def plot_against_gantry(what):
 
     
     fig, (ax1, ax2) = plt.subplots(2, 1)
-    fig.suptitle('PoderBallz: A tale of four balls')
+    fig.suptitle('PoderBallz A tale of four balls {}'.format(what))
     
     #TODO: Generalise in for loop for any number of balls:
     
-    df.plot(kind="scatter", x='Gantry', y=(what, 1, 'x'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 1, 'x'), s=1,
             color='darkred', label='b1', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=(what, 2, 'x'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 2, 'x'), s=1,
             color='darkblue', label='b2', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=(what, 3, 'x'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 3, 'x'), s=1,
             color='darkgreen', label='b3', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=(what, 4, 'x'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 4, 'x'), s=1,
             color='darkslategrey', label='b4', ax=ax1)
     
-    df.plot(kind="scatter", x='Gantry', y=(what, 1, 'y'), s=3,
+    
+    
+    df.plot(kind="scatter", x='Gantry', y=(what, 1, 'y'), s=1,
             color='darkred', label='b1', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=(what, 2, 'y'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 2, 'y'), s=1,
             color='darkblue', label='b2', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=(what, 3, 'y'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 3, 'y'), s=1,
             color='darkgreen', label='b3', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=(what, 4, 'y'), s=3,
+    df.plot(kind="scatter", x='Gantry', y=(what, 4, 'y'), s=1,
             color='darkslategrey', label='b4', ax=ax2)
      
     ax1.set_ylabel('X position')  
     ax2.set_ylabel('Y position')
+    
+    ax2.get_legend().remove()
+    
+    
+    ax1.legend(title="None", fontsize="xx-small", loc="upper right")
+    
     
     plt.show()
     
@@ -194,8 +202,12 @@ def plot_coords_on_images(what):
     None.
 
     """
-    if what == 'drr':
+    if what == 'drrballs':
         folder = drrfolder
+        aperture_dflabel = 'DRRApertures'
+        balls_dflabel = 'DRRBalls'
+    elif what == 'drrape':
+        folder = mlcfolder
         aperture_dflabel = 'DRRApertures'
         balls_dflabel = 'DRRBalls'
     elif what == 'epid':
@@ -205,7 +217,7 @@ def plot_coords_on_images(what):
         
     
     
-    for i in range(50,71):
+    for i in range(31,45):
         # test plotting to see if the coordinates makes sense
         filename = df.loc[i, 'filename'].values[0]
         filename = folder / filename
@@ -215,9 +227,11 @@ def plot_coords_on_images(what):
         if what == 'epid':
             balls = df.loc[i, balls_dflabel].values
             apertures = df.loc[i, aperture_dflabel].values
-        elif what == 'drr':
+        elif what == 'drr' or 'drrape':
             balls = df.loc[i, balls_dflabel].values
-            apertures = df.loc[i, aperture_dflabel].values 
+            apertures = df.loc[i, aperture_dflabel].values
+
+        
         #convert to format required by plotting function
         it = iter(balls)
         balls = [*zip(it,it)]
@@ -430,13 +444,17 @@ if __name__ == "__main__":
     get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
     
-    plot_coords_on_images('epid') # Allowed arguments:'drr', 'epid'
+    plot_coords_on_images('drrape') 
+    # Allowed arguments:'drrballs', 'drrape' 'epid' 
         
     
     plot_against_gantry('DRRApertures') # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
+    plot_against_gantry('DRRBalls')
     
-    
+    plot_against_gantry('EPIDApertures')
     plot_against_gantry('EPIDBalls')
+    
+    
     # Scratch
 
 
