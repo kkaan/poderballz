@@ -24,6 +24,8 @@ from skimage.feature import canny
 from skimage.measure import regionprops, label
 from skimage.filters import threshold_otsu
 
+import cv2
+
 
 def get_apeture_centroids(image, binary, num_of_balls):
     """
@@ -79,9 +81,10 @@ def get_ball_positions(image, binary, num_of_balls):
     ball_positions = list(zip(cx,cy))
     
     # order balls by y position.
-    #TODO - we will have to generalise this for geometry agnostic behaviour
+  
     ball_positions = sorted(ball_positions, key=itemgetter(1)) 
     
+    #TODO - we will have to generalise this for geometry agnostic behaviour
     return ball_positions
 
 
@@ -148,42 +151,28 @@ def plot_against_gantry(what):
     fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.suptitle('PoderBallz A tale of four balls {}'.format(what))
     
-    #TODO: Generalise in for loop for any number of balls:
+    colours = ['darkred', 'darkblue', 'darkgreen', 'darkslategrey']
+    # need more colours for more balls.
     
-    df.plot(kind="scatter", x='Gantry', y=(what, 1, 'x'), s=1,
-            color='darkred', label='b1', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=(what, 2, 'x'), s=1,
-            color='darkblue', label='b2', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=(what, 3, 'x'), s=1,
-            color='darkgreen', label='b3', ax=ax1)
-    df.plot(kind="scatter", x='Gantry', y=(what, 4, 'x'), s=1,
-            color='darkslategrey', label='b4', ax=ax1)
+    for i in range(1,num_of_balls+1):
+        df.plot(kind="scatter", x='Gantry', y=(what, i, 'x'), s=1,
+                color=colours[i-1], label='ball {}'.format(i), ax=ax1)
+        
+        df.plot(kind="scatter", x='Gantry', y=(what, i, 'y'), s=1,
+                color=colours[i-1], label='ball {}'.format(i), ax=ax2)
     
-    
-    
-    df.plot(kind="scatter", x='Gantry', y=(what, 1, 'y'), s=1,
-            color='darkred', label='b1', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=(what, 2, 'y'), s=1,
-            color='darkblue', label='b2', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=(what, 3, 'y'), s=1,
-            color='darkgreen', label='b3', ax=ax2)
-    df.plot(kind="scatter", x='Gantry', y=(what, 4, 'y'), s=1,
-            color='darkslategrey', label='b4', ax=ax2)
-     
     ax1.set_ylabel('X position')  
     ax2.set_ylabel('Y position')
     
-    ax2.get_legend().remove()
-    
-    
     ax1.legend(title="None", fontsize="xx-small", loc="upper right")
+    ax2.get_legend().remove()
     
     
     plt.show()
     
     
 
-def plot_coords_on_images(what):
+def plot_coords_on_images(what, range_of_images):
     """
     
     Plots the coordinates of balls and apertures on the images.
@@ -217,7 +206,7 @@ def plot_coords_on_images(what):
         
     
     
-    for i in range(31,45):
+    for i in range_of_images:
         # test plotting to see if the coordinates makes sense
         filename = df.loc[i, 'filename'].values[0]
         filename = folder / filename
@@ -254,6 +243,7 @@ def plot_coords_on_images(what):
                         linewidth=3, markersize=2)
         
         ax.imshow(image)
+        ax.title.set_text(filename)
         plt.show()
     
 def get_epid_balls_and_apertures(names, num_of_balls):
@@ -359,8 +349,10 @@ def get_drr_apertures(names, num_of_balls):
 
     Parameters
     ----------
-    files : list of strings
+    names : list of strings
         contains the names of tif image files.
+    num_of_balls: integer
+        how many balls do you have?
 
     Returns
     -------
@@ -370,7 +362,26 @@ def get_drr_apertures(names, num_of_balls):
 
     for i, n in enumerate(names):
         filename = mlcfolder / n
+        
         im = imageio.imread(filename)
+        
+        se1 = cv2.getStructuringElement(cv2.MORPH_RECT, (100,1))
+        se2 = cv2.getStructuringElement(cv2.MORPH_RECT, (1,1))
+        mask = cv2.morphologyEx(im, cv2.MORPH_CLOSE, se1)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, se2)
+        
+        #mask = np.dstack([mask, mask, mask]) / 255
+        im = im * mask
+        
+   
+        
+        #TODO: Check if the above removal of leaf gap also narrows the objects.
+
+        # cv2.imshow('Output', out)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        
+        
         im = np.array(im)
         
         im = sparse_image(im, cropx, cropy)
@@ -444,7 +455,7 @@ if __name__ == "__main__":
     get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
     
-    plot_coords_on_images('drrape') 
+    plot_coords_on_images('drrape', range(28,53)) 
     # Allowed arguments:'drrballs', 'drrape' 'epid' 
         
     
