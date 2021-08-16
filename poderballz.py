@@ -455,7 +455,7 @@ if __name__ == "__main__":
     get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
     
-    plot_coords_on_images('drrape', range(28,53)) 
+    plot_coords_on_images('drrballs', range(28,53)) 
     # Allowed arguments:'drrballs', 'drrape' 'epid' 
         
     
@@ -468,7 +468,7 @@ if __name__ == "__main__":
     
     # Scratch
 
-
+    
 
 
 
