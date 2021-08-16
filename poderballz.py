@@ -412,6 +412,23 @@ def get_drr_apertures(names, num_of_balls):
         update_progress(i/progmax, text)
 
 
+def calculateWL():
+    
+    #create results dataframe
+       
+    #smooth all data and add it to this.
+    
+    #calculate deviation in mm
+    SDD = 500 #mm from iso
+    pixel_res = 0.34 #asi1000 = 0.34, asi1200 = 0.39
+    pixel_to_mm = pixel_res*(1000+SDD)/1000
+    
+    df['WL'] = (pixel_to_mm*df.loc[:, 'DRRBalls'] - pixel_to_mm*df.loc[:, 'EPIDBalls'])-(
+        pixel_to_mm*df.loc[:, 'DRRApertures'] - pixel_to_mm*df.loc[:, 'EPIDApertures'])
+    
+    plot_against_gantry('WL')
+
+
 if __name__ == "__main__": 
     fstring = 'P:/14 Projects/49_SRS Phantom/Output Images'
     data_folder = ('P:/14 Projects/49_SRS Phantom/Output Images')
@@ -465,7 +482,7 @@ if __name__ == "__main__":
     plot_against_gantry('EPIDApertures')
     plot_against_gantry('EPIDBalls')
     
-    
+    calculateWL
     # Scratch
 
     
