@@ -26,6 +26,8 @@ from skimage.filters import threshold_otsu
 
 import cv2
 
+import scipy.stats as stats
+
 
 def get_apeture_centroids(image, binary, num_of_balls):
     """
@@ -296,6 +298,9 @@ def get_epid_balls_and_apertures(names, num_of_balls):
         
         # Progress bar
         update_progress(i/progmax, text)
+        
+        
+        
 
 
 def get_drr_balls(names, num_of_balls):
@@ -414,17 +419,32 @@ def get_drr_apertures(names, num_of_balls):
 
 def calculateWL():
     
-    #create results dataframe
-       
-    #smooth all data and add it to this.
     
-    #calculate deviation in mm
+    #create results dataframe
+    #smooth it out
+   
+    
+    #
+    
+    # calculate deviation in mm
+    # Resolution details in DICOM header Image plane pixel spacing (3002,0011)
+    # 0.336 mm/px at SID 100cm
+    
+    
     SDD = 500 #mm from iso
-    pixel_res = 0.34 #asi1000 = 0.34, asi1200 = 0.39
+    pixel_res = 0.336 #asi1000 = 0.34, asi1200 = 0.39
     pixel_to_mm = pixel_res*(1000+SDD)/1000
     
-    df['WL'] = (pixel_to_mm*df.loc[:, 'DRRBalls'] - pixel_to_mm*df.loc[:, 'EPIDBalls'])-(
-        pixel_to_mm*df.loc[:, 'DRRApertures'] - pixel_to_mm*df.loc[:, 'EPIDApertures'])
+       
+    df['WL'] = pixel_to_mm*(df.loc[:, 'DRRBalls'] -df.loc[:, 'EPIDBalls'])-(
+        pixel_to_mm*(df.loc[:, 'DRRApertures'] - df.loc[:, 'EPIDApertures']))
+    
+    
+    # remove the extremes
+    df['WL'] = df['WL'][np.abs(df.WL-df.WL.mean()) <= (1*df.WL.std())]
+    
+    # remove values higher than 5 mm 
+    df['WL'] = df['WL'][np.abs(df.WL) < 5]
     
     plot_against_gantry('WL')
 
@@ -440,7 +460,7 @@ if __name__ == "__main__":
     
     #create dataframe with gantry angles and filenames
     
-    item_type = ["EPIDBalls","EPIDApertures","DRRBalls","DRRApertures"]
+    item_type = ["EPIDBalls","EPIDApertures","DRRBalls","DRRApertures", "WL"]
     num_of_balls = 4
     item_number = list(range(1,num_of_balls+1))
     axes = ['x', 'y']
