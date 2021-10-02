@@ -442,7 +442,7 @@ def get_drr_apertures(names, num_of_balls):
         update_progress(i/progmax, text)
 
 
-def calculateWL():
+def calculateWL(df):
     # calculate deviation in mm
     # Resolution details in DICOM header Image plane pixel spacing (3002,0011)
     # 0.336 mm/px at SID 100cm
@@ -519,10 +519,10 @@ if __name__ == "__main__":
     plot_against_gantry('EPIDApertures')
     plot_against_gantry('EPIDBalls')
     
-    calculateWL
+    calculateWL(df)
     # Scratch
 
-    plot_box()
+    plot_box(df)
 
     #branch testing
     #branch test 2
