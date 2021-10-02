@@ -156,6 +156,8 @@ def plot_against_gantry(what):
     colours = ['darkred', 'darkblue', 'darkgreen', 'darkslategrey']
     # need more colours for more balls.
     
+    # num_of_balls = 1 # comment out this line to print all balls
+    
     for i in range(1,num_of_balls+1):
         df.plot(kind="scatter", x='Gantry', y=(what, i, 'x'), s=1,
                 color=colours[i-1], label='ball {}'.format(i), ax=ax1)
@@ -163,8 +165,8 @@ def plot_against_gantry(what):
         df.plot(kind="scatter", x='Gantry', y=(what, i, 'y'), s=1,
                 color=colours[i-1], label='ball {}'.format(i), ax=ax2)
     
-    ax1.set_ylabel('X position')  
-    ax2.set_ylabel('Y position')
+    ax1.set_ylabel('X position (mm)')  
+    ax2.set_ylabel('Y position (mm)')
     
     ax1.legend(title="None", fontsize="xx-small", loc="upper right")
     ax2.get_legend().remove()
@@ -247,6 +249,29 @@ def plot_coords_on_images(what, range_of_images):
         ax.imshow(image)
         ax.title.set_text(filename)
         plt.show()
+        
+def plot_box():    
+    data_1 = (df['WL', 1,'x']**2*df['WL', 1,'y']**2)**(1/2)
+    data_2 = (df['WL', 2,'x']**2*df['WL', 2,'y']**2)**(1/2)
+    data_3 = (df['WL', 3,'x']**2*df['WL', 3,'y']**2)**(1/2)
+    data_4 = (df['WL', 4,'x']**2*df['WL', 4,'y']**2)**(1/2) 
+    
+    data = [data_1, data_2, data_3, data_4]
+    fig = plt.figure(figsize =(7, 5))
+     
+    # Creating axes instance
+    ax = fig.add_axes([0, 0, 1, 1])
+     
+    # Creating plot
+    bp = ax.boxplot(data)
+    ticks = plt.xticks([1,2,3,4],[30,50,60,100])
+    plt.title(label="MTSI Positional Verification", fontsize=25)
+    plt.xlabel("Distance from Isocentre (mm)", fontsize=10)
+    plt.ylabel("Deviation from DRR (mm)", fontsize=10)
+    
+    # show plot
+    plt.show()
+
     
 def get_epid_balls_and_apertures(names, num_of_balls):
     """
@@ -418,14 +443,6 @@ def get_drr_apertures(names, num_of_balls):
 
 
 def calculateWL():
-    
-    
-    #create results dataframe
-    #smooth it out
-   
-    
-    #
-    
     # calculate deviation in mm
     # Resolution details in DICOM header Image plane pixel spacing (3002,0011)
     # 0.336 mm/px at SID 100cm
@@ -441,7 +458,7 @@ def calculateWL():
     
     
     # remove the extremes
-    df['WL'] = df['WL'][np.abs(df.WL-df.WL.mean()) <= (1*df.WL.std())]
+    # df['WL'] = df['WL'][np.abs(df.WL-df.WL.mean()) <= (1*df.WL.std())]
     
     # remove values higher than 5 mm 
     df['WL'] = df['WL'][np.abs(df.WL) < 5]
@@ -492,7 +509,7 @@ if __name__ == "__main__":
     get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
     
-    plot_coords_on_images('drrballs', range(28,53)) 
+    plot_coords_on_images('epid', range(28,53)) 
     # Allowed arguments:'drrballs', 'drrape' 'epid' 
         
     
@@ -505,7 +522,7 @@ if __name__ == "__main__":
     calculateWL
     # Scratch
 
-    
+    plot_box()
 
 
 
