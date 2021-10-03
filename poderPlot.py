@@ -55,7 +55,7 @@ what = 'EPIDBalls'
 
 
 window = 10
-num_stds = 2
+num_stds = 3
 
 
 x = df[what, 1, 'x'].copy()
