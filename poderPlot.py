@@ -54,14 +54,14 @@ plt.ylabel("Deviation from DRR (mm)", fontsize=10)
 what = 'EPIDBalls'
 
 
-window = 5
-
+window = 10
+num_stds = 2
 
 
 x = df[what, 1, 'x'].copy()
 
 # add values to front for rolling average to work at start.
-m = np.pad(x, pad_width=(window-1, windoow-1), mode='wrap')
+m = np.pad(x, pad_width=(window-1, 0), mode='wrap')
 m = pandas.Series(m)
 m = m.rolling(window).median()
 
@@ -69,21 +69,22 @@ m = m.rolling(window).median()
 m = m.iloc[window-1:]
 m.reset_index(drop=True, inplace=True)
 
-s = np.pad(x, pad_width=(window-1, 0), mode='wrap')
+s = np.pad(m, pad_width=(window-1, 0), mode='wrap')
 s = pandas.Series(s)
 s = s.rolling(window).std()
+
 s = s.iloc[window-1:]
 s.reset_index(drop=True, inplace=True)
 
+xbool = (x <= m+num_stds*s) & (x >= m-num_stds*s)
 
-x = x.mask((x <= m+2*s) & (x >=m-2*s))
+x2 = x.copy()
+x2 = x2.mask(~xbool)
 
-x2 = x[(x <= m+2*s) & (x >=m-2*s)]
 
-fig, (ax1, ax2) = plt.subplots(2, 1)
-fig.suptitle('window = {}'.format(window))
-x.plot(ax=ax1)
-x2.plot(ax=ax2)
+fig, (ax1) = plt.subplots(1, 1)
+fig.suptitle('window = {swin}, stdevs = {snumstds}'.format(swin = window, snumstds = num_stds))
+x2.plot(ax=ax1)
 plt.show()
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
