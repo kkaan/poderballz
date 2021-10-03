@@ -250,7 +250,7 @@ def plot_coords_on_images(what, range_of_images):
         ax.title.set_text(filename)
         plt.show()
         
-def plot_box():    
+def plot_box(df):    
     data_1 = (df['WL', 1,'x']**2*df['WL', 1,'y']**2)**(1/2)
     data_2 = (df['WL', 2,'x']**2*df['WL', 2,'y']**2)**(1/2)
     data_3 = (df['WL', 3,'x']**2*df['WL', 3,'y']**2)**(1/2)
