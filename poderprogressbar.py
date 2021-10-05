@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Display progress in the standard input output stream.
+
 Created on Tue Oct  5 10:09:59 2021
 
 @author: 56153805
@@ -9,8 +11,8 @@ import sys
 
 #progress bar
 def update_progress(progress, subtext):
-    '''
-    Creates a progress bar in standard output.
+    """
+    Create a progress bar in standard output.
 
     Parameters
     ----------
@@ -21,7 +23,7 @@ def update_progress(progress, subtext):
     -------
     None.
 
-    '''
+    """
     barLength = 20 # Modify this to change the length of the progress bar
     status = ""
     if isinstance(progress, int):

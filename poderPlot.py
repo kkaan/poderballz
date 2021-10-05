@@ -73,8 +73,7 @@ def plot_against_gantry(what, num_of_balls, df):
     
 def plot_coords_on_images(what, range_of_images, data_folder, df):
     """
-    
-    Plots the coordinates of balls and apertures on the images.
+    Plot the coordinates of balls and apertures on the images.
     
     Parameters
     ----------
@@ -188,43 +187,7 @@ def boxplot(what, num_of_balls, df):
     
       
 ## removing outliers
-def remove_outliers(df, what):
-    
-    #what = 'EPIDBalls'
-    
-    
-    window = 10
-    num_stds = 3
-    
-    
-    x = df[what, 1, 'x'].copy()
-    
-    # add values to front for rolling average to work at start.
-    m = np.pad(x, pad_width=(window-1, 0), mode='wrap')
-    m = pandas.Series(m)
-    m = m.rolling(window).median()
-    
-    # crop the NAN values
-    m = m.iloc[window-1:]
-    m.reset_index(drop=True, inplace=True)
-    
-    s = np.pad(m, pad_width=(window-1, 0), mode='wrap')
-    s = pandas.Series(s)
-    s = s.rolling(window).std()
-    
-    s = s.iloc[window-1:]
-    s.reset_index(drop=True, inplace=True)
-    
-    xbool = (x <= m+num_stds*s) & (x >= m-num_stds*s)
-    
-    x2 = x.copy()
-    x2 = x2.mask(~xbool)
 
-
-    fig, (ax1) = plt.subplots(1, 1)
-    fig.suptitle('window = {swin}, stdevs = {snumstds}'.format(swin = window, snumstds = num_stds))
-    x2.plot(ax=ax1)
-    plt.show()
 
 
 

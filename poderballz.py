@@ -32,6 +32,7 @@ from skimage.measure import regionprops, label
 from skimage.filters import threshold_otsu
 from poderprogressbar import update_progress
 from poderPlot import plot_against_gantry, boxplot, plot_coords_on_images
+from polyfitsmooth import polyfit_interpolate
 
 
 def sparse_image(img,cropx,cropy):
@@ -342,8 +343,6 @@ if __name__ == "__main__":
     names = [os.path.basename(x) for x in glob.glob(fstring+'/EPID/*.tif')]
     df['filename'] = names
     
-    
-    
     progmax = len(df)-1
     
     cropx = 900
@@ -353,6 +352,8 @@ if __name__ == "__main__":
     get_epid_balls_and_apertures(names, num_of_balls)
     get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
+    
+    polyfit_interpolate(df)
     
     calculateWL(df)
     
@@ -378,7 +379,6 @@ if __name__ == "__main__":
     plt.show()
 
     plt.close('all') # memory save
-
 
 
 
