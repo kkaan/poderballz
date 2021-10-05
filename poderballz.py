@@ -228,7 +228,7 @@ def get_drr_apertures(names, num_of_balls):
     None.
 
     """
-    for i, n in enumerate(names, df):
+    for i, n in enumerate(names):
         filename = mlcfolder / n
         
         im = imageio.imread(filename)
