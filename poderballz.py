@@ -241,14 +241,11 @@ def get_drr_apertures(names, num_of_balls):
         #mask = np.dstack([mask, mask, mask]) / 255
         im = im * mask
         
-   
-        
         #TODO: Check if the above removal of leaf gap also narrows the objects.
 
         # cv2.imshow('Output', out)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
-        
         
         im = np.array(im)
         
