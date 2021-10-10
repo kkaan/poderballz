@@ -32,7 +32,7 @@ from skimage.measure import regionprops, label
 from skimage.filters import threshold_otsu
 from poderprogressbar import update_progress
 from poderPlot import plot_against_gantry, boxplot, plot_coords_on_images
-from polyfitsmooth import polyfit_interpolate
+# from polyfitsmooth import polyfit_interpolate
 
 
 def sparse_image(img,cropx,cropy):
@@ -93,6 +93,8 @@ def get_apeture_centroids(image, binary, num_of_balls):
 def get_ball_positions(image, binary, num_of_balls):
     """
     Return the positions of all the balls found in the image.
+    
+    This function is used by the funtions get_drr_balls and get_epid_balls.
 
     Parameters
     ----------
@@ -353,9 +355,9 @@ if __name__ == "__main__":
     get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
     
-    polyfit_interpolate(df)
+    # polyfit_interpolate(df, item_type)
     
-    calculateWL(df)
+    # calculateWL(df)
     
     plot_coords_on_images('epid', range(28,53), data_folder, df) 
     plt.show()
@@ -381,7 +383,7 @@ if __name__ == "__main__":
     plt.close('all') # memory save
 
 
-
+    
 
 
 

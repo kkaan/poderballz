@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 """
+Plotting tools for PoderBallz.
+
 Created on Fri Jun  4 11:20:28 2021
 
-Plotting tools for PoderBallz
+.. module:: poderballz
+   :platform: Windows
+   :synopsis: grab some balls.
 
-@author: 56153805
+.. moduleauthor:: Kaan Kankean <kankean.kandasamy@health.nsw.gov.au>
+
 """
 
 # Import libraries
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas
 import imageio
 import skimage.color as color
 
@@ -150,7 +154,23 @@ def plot_coords_on_images(what, range_of_images, data_folder, df):
             
 
 def boxplot(what, num_of_balls, df):
-    
+    """
+    Display boxplot of WL results for all the targets.
+
+    Parameters
+    ----------
+    what : TYPE
+        DESCRIPTION.
+    num_of_balls : TYPE
+        DESCRIPTION.
+    df : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
     # # Creating dataset
     # np.random.seed(10)
     
