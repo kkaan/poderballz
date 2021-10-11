@@ -32,7 +32,7 @@ from skimage.measure import regionprops, label
 from skimage.filters import threshold_otsu
 from poderprogressbar import update_progress
 from poderPlot import plot_against_gantry, boxplot, plot_coords_on_images
-# from polyfitsmooth import polyfit_interpolate
+from poderInterpolate import poly_interpolate
 
 
 def sparse_image(img,cropx,cropy):
@@ -298,17 +298,16 @@ def calculateWL(df):
     # 0.336 mm/px at SID 100cm
     
     
-    SDD = 500 #mm from iso
-    pixel_res = 0.336 #asi1000 = 0.34, asi1200 = 0.39
-    pixel_to_mm = pixel_res*(1000+SDD)/1000
+    # SDD = 500 #mm from iso
+    # pixel_res = 0.336 #asi1000 = 0.34, asi1200 = 0.39
+    # pixel_to_mm = pixel_res*(1000+SDD)/1000
     
+    pixel_to_mm = 1 # conversion is now done prior to interpolation.
        
     df['WL'] = pixel_to_mm*(df.loc[:, 'DRRBalls'] -df.loc[:, 'EPIDBalls'])-(
         pixel_to_mm*(df.loc[:, 'DRRApertures'] - df.loc[:, 'EPIDApertures']))
     
     
-    # remove the extremes
-    # df['WL'] = df['WL'][np.abs(df.WL-df.WL.mean()) <= (1*df.WL.std())]
     
     # remove values higher than 5 mm 
     df['WL'] = df['WL'][np.abs(df.WL) < 5]
@@ -355,16 +354,6 @@ if __name__ == "__main__":
     get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
     
-    # polyfit_interpolate(df, item_type)
-    
-    # calculateWL(df)
-    
-    plot_coords_on_images('epid', range(28,53), data_folder, df) 
-    plt.show()
-
-    # Allowed arguments:'drrballs', 'drrape' 'epid' 
-       
-    
     plot_against_gantry('DRRApertures', num_of_balls, df) # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
     plt.show()
     plot_against_gantry('DRRBalls', num_of_balls, df)
@@ -373,6 +362,22 @@ if __name__ == "__main__":
     plt.show()
     plot_against_gantry('EPIDBalls', num_of_balls, df)
     plt.show()
+    
+    # Allowed arguments:'drrballs', 'drrape' 'epid' 
+    plot_coords_on_images('epid', range(28,53), data_folder, df)
+    plot_coords_on_images('drrape', range(28,53), data_folder, df)
+    plot_coords_on_images('drrballs', range(28,53), data_folder, df)
+
+    poly_interpolate(df)
+    calculateWL(df)
+    
+    plot_coords_on_images('epid', range(28,53), data_folder, df) 
+    plt.show()
+        
+   
+       
+    
+
         
     
     plot_against_gantry('WL', num_of_balls, df)
