@@ -368,11 +368,9 @@ if __name__ == "__main__":
     plot_coords_on_images('drrape', range(28,53), data_folder, df)
     plot_coords_on_images('drrballs', range(28,53), data_folder, df)
 
-    poly_interpolate(df)
+    poly_interpolate(df) # interpolate and convert to mm
     calculateWL(df)
-    
-    plot_coords_on_images('epid', range(28,53), data_folder, df) 
-    plt.show()
+    # plt.show()
         
    
        
@@ -380,12 +378,12 @@ if __name__ == "__main__":
 
         
     
-    plot_against_gantry('WL', num_of_balls, df)
-    plt.show()
-    boxplot('WL', num_of_balls, df)
-    plt.show()
+    # plot_against_gantry('WL', num_of_balls, df)
+    # plt.show()
+    # boxplot('WL', num_of_balls, df)
+    # plt.show()
 
-    plt.close('all') # memory save
+    # plt.close('all') # memory save
 
 
     

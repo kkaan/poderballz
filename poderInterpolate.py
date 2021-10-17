@@ -10,11 +10,16 @@ Created on Sun Oct  3 16:27:47 2021
 import numpy as np
 #import statsmodels.api as sm
 import pandas as pd
+
+
 import matplotlib.pyplot as plt
 from poderPlot import plot_against_gantry
+from statsmodels.nonparametric.smoothers_lowess import lowess
 
 def remove_outliers(df):
     """
+    remove ouliers using z-score method.
+    
     Parameters
     ----------
     df : TYPE
@@ -55,11 +60,12 @@ def remove_outliers(df):
     x = x.mask(~xbool)
     
     return x
-    
 
-def poly_interpolate(df):
+
+
+def interpolate(df):
     """
-    Interpolate using 5th order polynomial fit.
+    Interpolate using chosen method.
     
     Applies changes to the passed df.
 
@@ -84,34 +90,64 @@ def poly_interpolate(df):
     df.loc[:,item_type]= df.loc[:,item_type]*pixel_to_mm
     
     x = remove_outliers(df)
-
+   
+   
+    # xtight = x.copy()
+    # xloose = x.copy()
+    
+    # TODO: pad this as well to remove edge artefacts from fit.
+    # for column in x :
+    #     xtight.loc[:,column] = lowess(x[column], df.Gantry, frac = .12, xvals=df.Gantry)
+    #     xloose.loc[:,column] = lowess(x[column], df.Gantry, frac = .2, xvals=df.Gantry)
+        
+   
     
     # interpolate with polynomial fits.
+    
+    residualThresh = 10 #residual value over which we delete the observation
+    
     for column in x:
         y = pd.concat([df.Gantry, x[column]], axis=1)
         
         # the NaN's screw up convergence in the polyfit. Drop them:
         y = y.dropna(how='any')
         
-        c = np.polyfit(y.Gantry, y[column], 5)
+        c = np.polyfit(y.Gantry, y[column], 7)
         fitline = np.poly1d(c)
-        x.loc[:,column] = fitline(df.Gantry)
-    
-    
-    df.iloc[:,:31] = x
-    
-    
-    # # Plot the fits against the measurements
-    # x = x.join(df.Gantry)
-    # for column in range(0,33):
+        fitted = fitline(df.Gantry)
+        polymask = abs(fitted-df.iloc[:,column]) > residualThresh
+        x[column] = x[column].mask(polymask)
         
-    #     ax = df.plot(x='Gantry', y=column, kind='scatter')
-    #     x.plot(x='Gantry', y=column, kind='scatter', color="red", ax=ax)
-    #     plt.show()
+        
+        # second pass with outliiers removed
+        y = pd.concat([df.Gantry, x[column]], axis=1)
+        y = y.dropna(how='any')
+        c = np.polyfit(y.Gantry, y[column], 7)
+        fitline = np.poly1d(c)
+        df.iloc[:,column] = fitline(df.Gantry)
+        
+    
+    # Plot the fits against the measurements
+    x = x.join(df.Gantry)
+    
+    
+    
+    
+    for column in range(0,31):
+        
+        ax = x.plot(x='Gantry', y=column, kind='scatter', color="blue", alpha = 0.3)
+        #xtight.plot(x='Gantry', y=column, kind='scatter', color="green", alpha=0.3, ax=ax)
+        #xloose.plot(x='Gantry', y=column, kind='scatter', color="darkgreen", alpha=0.3, ax=ax)
+        plt.show()
         
        
-    # plt.close("all")
-
+    plt.close("all")
+    
+    
+    # apply changes to df.
+    df[:,]
+    # check if this is happenning
+    
     
     
 def main():
