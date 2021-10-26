@@ -31,9 +31,9 @@ from skimage.feature import canny
 from skimage.measure import regionprops, label
 from skimage.filters import threshold_otsu
 from poderprogressbar import update_progress
-from poderPlot import plot_against_gantry, boxplot, plot_coords_on_images
-from poderInterpolate import poly_interpolate
-
+from poderPlot import plot_against_gantry, boxplot, plot_coords_on_images, plot_a_ball
+from poderInterpolate import interpolate
+ 
 
 def sparse_image(img,cropx,cropy):
     """
@@ -307,15 +307,14 @@ def calculateWL(df):
     df['WL'] = pixel_to_mm*(df.loc[:, 'DRRBalls'] -df.loc[:, 'EPIDBalls'])-(
         pixel_to_mm*(df.loc[:, 'DRRApertures'] - df.loc[:, 'EPIDApertures']))
     
-    
-    
+       
     # remove values higher than 5 mm 
     df['WL'] = df['WL'][np.abs(df.WL) < 5]
 
 if __name__ == "__main__": 
     
-    fstring = 'P:/14 Projects/49_SRS Phantom/Output Images'
-    data_folder = ('P:/14 Projects/49_SRS Phantom/Output Images')
+    fstring = 'P:/14 Projects/49_SRS Phantom/HTT Shifts/HTT, 0 Shift 6FFF_2108_0747/Output Images'
+    data_folder = (fstring)
     data_folder = Path(data_folder)
     frameinfo = data_folder / 'Gantry_Angles.csv'
     epidfolder = data_folder / 'EPID'
@@ -363,28 +362,40 @@ if __name__ == "__main__":
     plot_against_gantry('EPIDBalls', num_of_balls, df)
     plt.show()
     
-    # Allowed arguments:'drrballs', 'drrape' 'epid' 
+    # Allowed arguments:'drrballs', 'drrape', 'drr', 'epid' 
     plot_coords_on_images('epid', range(28,53), data_folder, df)
     plot_coords_on_images('drrape', range(28,53), data_folder, df)
     plot_coords_on_images('drrballs', range(28,53), data_folder, df)
+    
+    
 
-    poly_interpolate(df) # interpolate and convert to mm
+    df_observed = df.copy()
+    # copy of non interpolated values for diagnostics
+    interpolate(df) # interpolate and convert to mm
+    
+    
+    # if converted to mm then convert back to pixel values
+    # to see the coordinates plotted on the images.
+    dfpixel = df.copy()
+    SDD = 500 #mm from iso
+    pixel_res = 0.336 #asi1000 = 0.34, asi1200 = 0.39
+    pixel_to_mm = pixel_res*(1000+SDD)/1000
+    dfpixel.loc[:,item_type] = dfpixel.loc[:,item_type]/pixel_to_mm
+    plot_coords_on_images('drrballs', range(76,96), data_folder, dfpixel)
+    
     calculateWL(df)
-    # plt.show()
-        
+           
+    
+    plot_against_gantry('WL', num_of_balls, df)
+    plt.show()
+    boxplot('WL', num_of_balls, df)
+    plt.show()
+
    
-       
+    plot_a_ball(2,df)
+    df.to_csv(fstring+'/results.csv')
+
     
-
-        
-    
-    # plot_against_gantry('WL', num_of_balls, df)
-    # plt.show()
-    # boxplot('WL', num_of_balls, df)
-    # plt.show()
-
-    # plt.close('all') # memory save
-
 
     
 

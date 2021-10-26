@@ -43,6 +43,42 @@ def sparse_image(img, cropx, cropy):
     starty = y//2-(cropy//2)
     return img[starty:starty+cropy, startx:startx+cropx]
 
+def plot_a_ball(ballnumber, df):
+    """
+    Plot the position of ball and corresponding apertures.
+
+    Parameters
+    ----------
+    ball_number : TYPE
+        which ball to plot.
+    df : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    item_type = ['EPIDBalls', 'EPIDApertures', 'DRRBalls', 'DRRApertures']
+    fig, (ax1) = plt.subplots(1, 1)
+    fig.suptitle('PoderBallz A tale of a ball {}'.format(ballnumber))
+    
+    colours = ['darkred', 'darkblue', 'darkgreen', 'darkslategrey']
+    # need more colours for more balls.
+    
+    # num_of_balls = 1 # comment out this line to print all balls
+    
+    for i in range(0,4):
+        df.plot(kind="scatter", x='Gantry', y=(item_type[i], ballnumber, 'x'), s=3, alpha =0.3,
+                color=colours[i-1], label=' {}'.format(item_type[i]), ax=ax1)
+          
+    ax1.set_ylabel('X position (mm)')  
+    
+    
+    ax1.legend(title="None", fontsize="xx-small", loc="upper right")
+    plt.show()
+    plt.close('all')
+
 
 # Plotting the balls
 def plot_against_gantry(what, num_of_balls, df):
@@ -55,7 +91,7 @@ def plot_against_gantry(what, num_of_balls, df):
 
     """
     fig, (ax1, ax2) = plt.subplots(2, 1)
-    fig.suptitle('PoderBallz A tale of four balls {}'.format(what))
+    fig.suptitle('Postions of four {} over gantry rotation'.format(what))
     
     colours = ['darkred', 'darkblue', 'darkgreen', 'darkslategrey']
     # need more colours for more balls.
@@ -72,7 +108,7 @@ def plot_against_gantry(what, num_of_balls, df):
     ax1.set_ylabel('X position (mm)')  
     ax2.set_ylabel('Y position (mm)')
     
-    ax1.legend(title="None", fontsize="xx-small", loc="upper right")
+    ax1.legend(title="Target#", fontsize="xx-small", loc="upper right")
     ax2.get_legend().remove()
     
 def plot_coords_on_images(what, range_of_images, data_folder, df):
@@ -101,7 +137,7 @@ def plot_coords_on_images(what, range_of_images, data_folder, df):
         folder = drrfolder
         aperture_dflabel = 'DRRApertures'
         balls_dflabel = 'DRRBalls'
-    elif what == 'drrape':
+    elif what == 'drrape' or 'drr':
         folder = mlcfolder
         aperture_dflabel = 'DRRApertures'
         balls_dflabel = 'DRRBalls'
@@ -122,7 +158,7 @@ def plot_coords_on_images(what, range_of_images, data_folder, df):
         if what == 'epid':
             balls = df.loc[i, balls_dflabel].values
             apertures = df.loc[i, aperture_dflabel].values
-        elif what == 'drr' or 'drrape':
+        elif what == 'drrballs' or 'drrape':
             balls = df.loc[i, balls_dflabel].values
             apertures = df.loc[i, aperture_dflabel].values
 
@@ -139,14 +175,24 @@ def plot_coords_on_images(what, range_of_images, data_folder, df):
         fig, ax = plt.subplots()
         image = color.gray2rgb(image)
     
-        
-        for a in apertures:
-                ax.plot(a[0], a[1], color="darkred", marker='x', 
-                        linewidth=3, markersize=5)
-        
-        for b in balls:
-                ax.plot(b[0], b[1], color="darkblue",marker='o', 
-                        linewidth=3, markersize=2)
+        if what == 'drrape':
+            for a in apertures:
+                    ax.plot(a[0], a[1], color="darkred", marker='x', 
+                            linewidth=3, markersize=5)
+        elif what == 'drrballs':
+            for b in balls:
+                    ax.plot(b[0], b[1], color="darkblue",marker='o', 
+                            linewidth=3, markersize=2)
+        elif what == 'drr':
+            for a in apertures:
+                    ax.plot(a[0], a[1], color="darkred", marker='x', 
+                            linewidth=3, markersize=5)
+            
+            for b in balls:
+                    ax.plot(b[0], b[1], color="darkblue",marker='o', 
+                            linewidth=3, markersize=2)
+                    
+                    
         
         ax.imshow(image)
         ax.title.set_text(filename)

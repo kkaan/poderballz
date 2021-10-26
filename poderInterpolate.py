@@ -87,7 +87,7 @@ def interpolate(df):
     SDD = 500 #mm from iso
     pixel_res = 0.336 #asi1000 = 0.34, asi1200 = 0.39
     pixel_to_mm = pixel_res*(1000+SDD)/1000
-    df.loc[:,item_type]= df.loc[:,item_type]*pixel_to_mm
+    df.loc[:,item_type] = df.loc[:,item_type]*pixel_to_mm
     
     x = remove_outliers(df)
    
@@ -133,20 +133,20 @@ def interpolate(df):
     
     
     
-    for column in range(0,31):
+    # for column in range(0,31):
         
-        ax = x.plot(x='Gantry', y=column, kind='scatter', color="blue", alpha = 0.3)
-        #xtight.plot(x='Gantry', y=column, kind='scatter', color="green", alpha=0.3, ax=ax)
-        #xloose.plot(x='Gantry', y=column, kind='scatter', color="darkgreen", alpha=0.3, ax=ax)
-        plt.show()
+    #     ax1 = df_observed.plot(x='Gantry', y=column, kind='scatter', color="darkred", s=1)
+    #     df.plot(x='Gantry', y=column, kind='scatter', color="darkblue", s=1, ax=ax1)
+        
+    #     #xtight.plot(x='Gantry', y=column, kind='scatter', color="green", alpha=0.3, ax=ax)
+    #     #xloose.plot(x='Gantry', y=column, kind='scatter', color="darkgreen", alpha=0.3, ax=ax)
+    #     plt.show()
         
        
-    plt.close("all")
+    # plt.close("all")
     
     
-    # apply changes to df.
-    df[:,]
-    # check if this is happenning
+
     
     
     
