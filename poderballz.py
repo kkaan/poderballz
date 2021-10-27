@@ -392,17 +392,20 @@ if __name__ == "__main__":
     get_epid_balls_and_apertures(names, num_of_balls)
     
     nameindex = list(range(0,len(names)))
+    
+    
     inputs = zip(names, nameindex, repeat(num_of_balls), repeat(drrfolder), 
                   repeat(cropx), 
-                  repeat(cropy),
-                  repeat(df))
-    pool = Pool(2) 
-    pool.starmap(get_drr_balls_pool, tqdm.tqdm(inputs, total=len(names)))
+                  repeat(cropy))
+    
+    
+    pool = Pool(15) 
+    drrpoolballs = pool.starmap(get_drr_balls_pool, tqdm.tqdm(inputs, total=len(names)))
     pool.close()
     pool.join()
     
-    
-    
+    drrpoolballs = np.asarray(drrpoolballs)
+    df.loc[:,'DRRBalls']= drrpoolballs
     #get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
     
@@ -445,7 +448,7 @@ if __name__ == "__main__":
     plt.show()
 
        
-    plot_a_ball(4,df)
+    plot_a_ball(2,df)
     df.to_csv(fstring+'/results.csv')
 
     
