@@ -133,18 +133,32 @@ def plot_coords_on_images(what, range_of_images, data_folder, df):
     drrfolder = data_folder / 'DRR'
     mlcfolder = data_folder / 'MLC'
     
+   
+    
     if what == 'drrballs':
         folder = drrfolder
         aperture_dflabel = 'DRRApertures'
         balls_dflabel = 'DRRBalls'
-    elif what == 'drrape' or 'drr':
+
+    elif what == 'drrape':
         folder = mlcfolder
         aperture_dflabel = 'DRRApertures'
         balls_dflabel = 'DRRBalls'
+
     elif what == 'epid':
         folder = epidfolder
         aperture_dflabel = 'EPIDApertures'
         balls_dflabel = 'EPIDBalls'
+
+    elif what == 'drr':
+        folder = mlcfolder
+        aperture_dflabel = 'DRRApertures'
+        balls_dflabel = 'DRRBalls'
+
+    else:
+        print('need to choose: drrballs, epid, drrape')
+        
+
         
     
     
@@ -183,11 +197,10 @@ def plot_coords_on_images(what, range_of_images, data_folder, df):
             for b in balls:
                     ax.plot(b[0], b[1], color="darkblue",marker='o', 
                             linewidth=3, markersize=2)
-        elif what == 'drr':
+        elif what == 'epid':
             for a in apertures:
                     ax.plot(a[0], a[1], color="darkred", marker='x', 
                             linewidth=3, markersize=5)
-            
             for b in balls:
                     ax.plot(b[0], b[1], color="darkblue",marker='o', 
                             linewidth=3, markersize=2)
