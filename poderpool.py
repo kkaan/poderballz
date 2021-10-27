@@ -6,9 +6,20 @@ Created on Wed Oct 27 17:56:19 2021
 
 
 @author: 56153805
+
+
 """
 
-def get_drr_balls_pool(name, i, num_of_balls):
+import imageio
+import numpy as np
+from operator import itemgetter
+from skimage.transform import hough_circle, hough_circle_peaks
+from skimage.feature import canny
+from skimage.filters import threshold_otsu
+from poderInterpolate import sparse_image
+
+
+def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy):
     """
     Get the ball positions from the drr image.
 
@@ -49,7 +60,8 @@ def get_drr_balls_pool(name, i, num_of_balls):
     
     # p
     ball_positions = [item for t in ball_positions for item in t]
-        
+    
+    return ball_positions
 
     # try:
     #     df.at[i, 'DRRBalls'] = ball_positions
