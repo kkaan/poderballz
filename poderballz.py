@@ -23,6 +23,7 @@ import glob
 import os
 import cv2
 import imageio
+import tqdm
 
 from pathlib import Path
 from operator import itemgetter
@@ -33,6 +34,7 @@ from skimage.filters import threshold_otsu
 from poderprogressbar import update_progress
 from poderPlot import plot_against_gantry, boxplot, plot_coords_on_images, plot_a_ball
 from poderInterpolate import interpolate
+from poderpool import get_drr_balls_pool
 
 import time
 from skimage.draw import circle_perimeter
@@ -390,15 +392,18 @@ if __name__ == "__main__":
     get_epid_balls_and_apertures(names, num_of_balls)
     
     nameindex = list(range(0,len(names)))
-    
-    pool = Pool()
-    pool.starmap(get_drr_balls_pool, zip(names,nameindex,repeat(num_of_balls)))
+    inputs = zip(names, nameindex, repeat(num_of_balls), repeat(drrfolder), 
+                  repeat(cropx), 
+                  repeat(cropy),
+                  repeat(df))
+    pool = Pool(2) 
+    pool.starmap(get_drr_balls_pool, tqdm.tqdm(inputs, total=len(names)))
     pool.close()
     pool.join()
     
     
     
-    get_drr_balls(names, num_of_balls)
+    #get_drr_balls(names, num_of_balls)
     get_drr_apertures(names, num_of_balls)
     
     plot_against_gantry('DRRApertures', num_of_balls, df) # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs

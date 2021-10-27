@@ -16,10 +16,34 @@ from operator import itemgetter
 from skimage.transform import hough_circle, hough_circle_peaks
 from skimage.feature import canny
 from skimage.filters import threshold_otsu
-from poderInterpolate import sparse_image
 
 
-def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy):
+
+def sparse_image(img,cropx,cropy):
+    """
+    Crop the imge and make it sparse.
+    
+    Parameters
+    ----------
+    img : numpy array
+        image to make sparse.
+    cropx : int
+        number pixels in the y direction.
+    cropy : int
+        numnber of pixels in the x direction.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
+    y,x = img.shape
+    startx = x//2-(cropx//2)
+    starty = y//2-(cropy//2)    
+    return img[starty:starty+cropy,startx:startx+cropx]
+
+def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy, df):
     """
     Get the ball positions from the drr image.
 
@@ -61,17 +85,17 @@ def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy):
     # p
     ball_positions = [item for t in ball_positions for item in t]
     
-    return ball_positions
+    #return ball_positions
 
-    # try:
-    #     df.at[i, 'DRRBalls'] = ball_positions
-    #         # df.at[] is faster than df.loc[] but will preserve data 
-    #         # type of df series. And it will do it silently. Saving 
-    #         # floats in int columns will be lossful.
-    # except AssertionError as error:
-    #     print(error)
-    #     print("Probably found too many balls or apertures." + 
-    #           "Change detection settings")
+    try:
+        df.at[i, 'DRRBalls'] = ball_positions
+            # df.at[] is faster than df.loc[] but will preserve data 
+            # type of df series. And it will do it silently. Saving 
+            # floats in int columns will be lossful.
+    except AssertionError as error:
+        print(error)
+        print("Probably found too many balls or apertures." + 
+              "Change detection settings")
         
     # #debug lines
     # fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(10, 4))
@@ -94,17 +118,17 @@ def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy):
    
     # update_progress(i/progmax, text)
     
-def main():
-    """
-    Suppress execution on import.
+# def main():
+#     """
+#     Suppress execution on import.
     
-    Returns
-    -------
-    None.
+#     Returns
+#     -------
+#     None.
 
-    """
-    pass
+#     """
+#     pass
 
-if __name__ == "__main__":
-   # stuff only to run when not called via 'import' here
-   main()
+# if __name__ == "__main__":
+#    # stuff only to run when not called via 'import' here
+#    main()
