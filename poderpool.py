@@ -1,14 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Multithread image processing
-Created on Wed Oct 27 17:56:19 2021
-
-
-
-@author: 56153805
-
-
-"""
+"""Module contains detection algorithms for use in multiprocesses."""
 
 import imageio
 import numpy as np
@@ -17,7 +8,7 @@ from skimage.transform import hough_circle, hough_circle_peaks
 from skimage.feature import canny
 from skimage.filters import threshold_otsu
 import cv2
-
+from skimage.measure import regionprops, label
 
 
 def sparse_image(img,cropx,cropy):
@@ -45,20 +36,23 @@ def sparse_image(img,cropx,cropy):
     return img[starty:starty+cropy,startx:startx+cropx]
 
 def get_ball_positions(image, binary, num_of_balls):
-    """
-    Return the positions of all the balls found in the image.
+    """Return the positions of all the balls found in the image.
     
     This function is used by the funtions get_drr_balls and get_epid_balls.
 
     Parameters
     ----------
-    sel : numy_array of binarised imaged
-        DESCRIPTION.
+    image : numy_array of binarised imaged
+        DRR image with balls clearly visible.
+    binary: numpy_array
+        Masked DRR for thresholded regions to minimise proecssing time.
+    num_of_balls: integer
+        Number of balls expected.
 
     Returns
     -------
-    ball_positions : TYPE
-        DESCRIPTION.
+    ball_positions : list
+        alll ball positions in the image returned.
 
     """
     edges = canny(image, sigma=3, low_threshold=5, high_threshold=10, mask=binary)
@@ -66,6 +60,7 @@ def get_ball_positions(image, binary, num_of_balls):
     hough_res = hough_circle(edges, hough_radii)
     accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii,
                                             total_num_peaks=num_of_balls)
+    
     ball_positions = list(zip(cx,cy))
     
     # order balls by y position.
@@ -75,71 +70,145 @@ def get_ball_positions(image, binary, num_of_balls):
     #TODO - we will have to generalise this for geometry agnostic behaviour
     return ball_positions
 
-# def get_epid_balls_and_apertures_pool(names, num_of_balls):
-#     """
-#     Get the ball and apeture positions from the EPID image.
 
-#     Parameters
-#     ----------
-#     files : list of strings
-#         contains the names of tif image files.
-
-#     Returns
-#     -------
-#     None.
-
-#     """
-#     for i, n in enumerate(names):
-#         filename = epidfolder / n
-#         im = imageio.imread(filename)
-#         im = np.array(im)
+    #############################################################
+    #  CV2 - uncommented this next block and comment all above  #
+    #############################################################
         
-#         im = sparse_image(im, cropx, cropy)
-#         thresh = threshold_otsu(im)
-#         binary = im > thresh
-#         sel = np.zeros_like(im)
-#         sel[binary] = im[binary]
+    # blur = cv2.GaussianBlur(image, (9,9), 0)
     
-#         apeture_centroids = get_apeture_centroids(sel, binary, num_of_balls)
-#         apeture_centroids = [item for t in apeture_centroids for item in t]
-#         apeture_centroids = [int(item) for item in apeture_centroids]
+    # # threshold
+    # thresh = cv2.threshold(blur,128,255,cv2.THRESH_BINARY)[1]
+    
+    
+    # # apply close and open morphology to smooth
+    # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9,9))
+    # thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+    # thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+    
+    # # draw contours and get centroids
+    # contours = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # contours = contours[0] if len(contours) == 2 else contours[1]
+    # cx = []
+    # cy = []
+    # for cntr in contours:
+    #     M = cv2.moments(cntr)
+    #     cx.append(int(M["m10"] / M["m00"]))
+    #     cy.append(int(M["m01"] / M["m00"]))
+    # ball_positions = list(zip(cx,cy))
+    
+    # # order balls by y position.
+  
+    # ball_positions = sorted(ball_positions, key=itemgetter(1)) 
+    
+    # #TODO - we will have to generalise this for geometry agnostic behaviour
+    # return ball_positions
+
+
+def get_apeture_centroids(image, binary, num_of_balls):
+    """Calculate the locations of all the mlc defined aperture positions.
+    
+    The location will be returned as the coordinates of the centre 
+    of mass of the aperture.
+    
+    Parameters
+    ----------
+    image : numpy array
+        image within which to find the mlc apertures.
+    binary : boolean array
+        boolean mask for epid image to only include apetures
+
+    Returns
+    -------
+    centroids : list of tuples
+        list of apertures found in increasing y coordingates.
+        
+    """
+    label_image = label(binary)
+    apertures = regionprops(label_image)
+    apertures.sort(key=lambda a: a.convex_area, reverse=True)
+    apertures = apertures[: num_of_balls] #just grab the largest apertures
+    centroids = [a.centroid for a in apertures] 
+    centroids = sorted(centroids, key=lambda a: a[0]) #sort by y value
+        
+    centroids = [(sub[1], sub[0]) for sub in centroids]
+    
+    return centroids
+
+def get_epid_balls_and_apertures_pool(name, i, num_of_balls, folder, cropx, cropy):
+    """Get the ball and apeture positions from the EPID image.
+    
+    Uses skimage hough transform to grab apetures and ball centroid from epid
+    images.
+
+    Parameters
+    ----------
+    name : string
+        name of image.
+    i : int
+        DESCRIPTION.
+    num_of_balls : TYPE
+        DESCRIPTION.
+    folder : TYPE
+        DESCRIPTION.
+    cropx : TYPE
+        DESCRIPTION.
+    cropy : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    ball_positions : TYPE
+        DESCRIPTION.
+    apeture_centroids : TYPE
+        DESCRIPTION.
+
+    """
+    filename = folder / name
+    im = imageio.imread(filename)
+    im = np.array(im)
+    
+    im = sparse_image(im, cropx, cropy)
+    thresh = threshold_otsu(im)
+    binary = im > thresh
+    sel = np.zeros_like(im)
+    sel[binary] = im[binary]
+
+    apeture_centroids = get_apeture_centroids(sel, binary, num_of_balls)
+    apeture_centroids = [item for t in apeture_centroids for item in t]
+    apeture_centroids = [int(item) for item in apeture_centroids]
    
-#         ball_positions = get_ball_positions(sel, binary, num_of_balls)
-#         ball_positions = [item for t in ball_positions for item in t]
+    ball_positions = get_ball_positions(sel, binary, num_of_balls)
+    ball_positions = [item for t in ball_positions for item in t]
     
+    return ball_positions, apeture_centroids
     
-#         try:
-#             df.at[i, 'EPIDApertures'] = apeture_centroids
-#             df.at[i, 'EPIDBalls'] = ball_positions
-#                 # df.at[] is faster than df.loc[] but will preserve data 
-#                 # type of df series. And it will do it silently. Saving 
-#                 # floats in int columns will be lossful.
-#         except AssertionError as error:
-#             print(error)
-#             print("Probably found too many balls or apertures." +
-#                   "Change detection settings")
-        
-#         #current status
-#         text = "Finding balls and apertures in EPID {0}".format(n)
-        
-#         # Progress bar
-#         update_progress(i/progmax, text)
-
+      
 def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy):
     """
     Get the ball positions from the drr image.
 
     Parameters
     ----------
-    files : list of strings
-        contains the names of tif image files.
+    name : TYPE
+        DESCRIPTION.
+    i : TYPE
+        DESCRIPTION.
+    num_of_balls : int
+        DESCRIPTION.
+    drrfolder : windowspath object
+        DESCRIPTION.
+    cropx : integer
+        DESCRIPTION.
+    cropy : integer
+        DESCRIPTION.
 
     Returns
     -------
-    None.
+    ball_positions : list
+        DESCRIPTION.
 
     """
-    
     filename = drrfolder / name
     
     
@@ -147,15 +216,7 @@ def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy):
     im = np.array(im)
     img = sparse_image(im, cropx, cropy)
     
-    # CV option
-    
-    # read image
-    #img = cv2.imread(filename)
 
-    # convert to grayscale
-    # gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
-    # apply gaussian blur
     blur = cv2.GaussianBlur(img, (9,9), 0)
     
     # threshold
@@ -178,37 +239,9 @@ def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy):
         M = cv2.moments(cntr)
         cx.append(int(M["m10"] / M["m00"]))
         cy.append(int(M["m01"] / M["m00"]))
-        # x = round(cx)
-        # y = round(cy)
-        # #circles[y-2:y+3,x-2:x+3] = (0,255,0)
-        # print(cx,",",cy)        
-    
-    # plt.imphow(thresh)
-    # cv2.imshow("thresh", thresh)
-    # cv2.imshow("circles", circles)
-    
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    
-    # # save cropped image
-    # cv2.imwrite('circles_thresh.png',thresh)
-    # cv2.imwrite('circles_centroids.png',circles)
-       
-    # thresh = threshold_otsu(im)
-    # binary = im > thresh
-    
-    # edges = canny(im, sigma=3, low_threshold=5, high_threshold=10, mask=binary)
-    
-    
-    # hough_radii = np.arange(4,20,3)
-    # hough_res = hough_circle(edges, hough_radii)
-    # accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii,
-    #                                     total_num_peaks=num_of_balls)
-    
-    ball_positions = list(zip(cx,cy))
 
-    # order balls by y position.
-    
+    # reorder balls by y position. This determines ball number
+    ball_positions = list(zip(cx,cy))
     ball_positions = sorted(ball_positions, key=itemgetter(1)) 
     
     # orientate for insertion into dataframe

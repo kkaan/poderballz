@@ -68,7 +68,7 @@ def plot_a_ball(ballnumber, df):
     
     # num_of_balls = 1 # comment out this line to print all balls
     
-    for i in range(0,4):
+    for i in range(0,4): # epid ball, epid apertures, drr balls and drr apertures
         df.plot(kind="scatter", x='Gantry', y=(item_type[i], ballnumber, 'x'), s=3, alpha =0.3,
                 color=colours[i-1], label=' {}'.format(item_type[i]), ax=ax1)
           
