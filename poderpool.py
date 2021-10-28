@@ -279,6 +279,64 @@ def get_drr_balls_pool(name, i, num_of_balls, drrfolder, cropx, cropy):
     # text = "Finding balls in DRR {0}".format(n)
    
     # update_progress(i/progmax, text)
+
+def get_drr_apertures_pool(name, num_of_balls, mlcfolder, cropx, cropy):
+    """ 
+    get_drr_apertures_pool(name, mlcfolder, num_of_balls, cropx, cropy)
+    
+    MLC files in tiff format are analysed to obtain centre of apoertures
+    
+
+    Parameters
+    ----------
+    name : string
+        name of file.
+    mlcfolder : string
+        folder of files.
+    num_of_balls : int
+        how many balls.
+    cropx : int
+        crop dimensions.
+    cropy : int
+        crop dimensions.
+
+    Returns
+    -------
+    aperture_centroids : list
+        returns ball position x,y in order of y axis location.
+
+    """
+    
+    filename = mlcfolder / name
+    
+    im = imageio.imread(filename)
+    
+    se1 = cv2.getStructuringElement(cv2.MORPH_RECT, (100,1))
+    se2 = cv2.getStructuringElement(cv2.MORPH_RECT, (1,1))
+    mask = cv2.morphologyEx(im, cv2.MORPH_CLOSE, se1)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, se2)
+    
+    #mask = np.dstack([mask, mask, mask]) / 255
+    im = im * mask
+    
+    #TODO: Check if the above removal of leaf gap also narrows the objects.
+
+    # cv2.imshow('Output', out)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
+    im = np.array(im)
+    
+    im = sparse_image(im, cropx, cropy)
+    thresh = threshold_otsu(im)
+    binary = im > thresh
+    sel = np.zeros_like(im)
+    sel[binary] = im[binary]
+
+    aperture_centroids = get_apeture_centroids(sel, binary, num_of_balls)
+    aperture_centroids = [item for t in aperture_centroids for item in t]
+    aperture_centroids = [int(item) for item in aperture_centroids]
+    return aperture_centroids
     
 # def main():
 #     """

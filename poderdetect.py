@@ -224,8 +224,7 @@ def get_drr_balls(names, drrfolder, num_of_balls, cropx, cropy, df):
 
 
 def get_drr_apertures(names, mlcfolder, num_of_balls, cropx, cropy, df):
-    """
-    Get apeture positions from the mlc image and saves to dataframe.
+    """ Get aperture positions from the mlc image and saves to dataframe.
 
     Parameters
     ----------
