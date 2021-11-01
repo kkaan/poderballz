@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>poderpool module &#8212; poderballs 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="poderprogressbar module" href="poderprogressbar.html" />
+    <link rel="prev" title="poderdetect module" href="poderdetect.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="poderprogressbar.html" title="poderprogressbar module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="poderdetect.html" title="poderdetect module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">poderballs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">poderballz</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">poderpool module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-poderpool">
+<span id="poderpool-module"></span><h1>poderpool module<a class="headerlink" href="#module-poderpool" title="Permalink to this headline">¶</a></h1>
+<p>Module contains detection algorithms for use in multiprocesses.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="poderpool.get_apeture_centroids">
+<span class="sig-prename descclassname"><span class="pre">poderpool.</span></span><span class="sig-name descname"><span class="pre">get_apeture_centroids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_balls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poderpool.get_apeture_centroids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the locations of all the mlc defined aperture positions.</p>
+<p>The location will be returned as the coordinates of the centre
+of mass of the aperture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>numpy array</em>) – image within which to find the mlc apertures.</p></li>
+<li><p><strong>binary</strong> (<em>boolean array</em>) – boolean mask for epid image to only include apetures</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>centroids</strong> – list of apertures found in increasing y coordingates.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poderpool.get_ball_positions">
+<span class="sig-prename descclassname"><span class="pre">poderpool.</span></span><span class="sig-name descname"><span class="pre">get_ball_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_balls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poderpool.get_ball_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the positions of all the balls found in the image.</p>
+<p>This function is used by the funtions get_drr_balls and get_epid_balls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>numy_array of binarised imaged</em>) – DRR image with balls clearly visible.</p></li>
+<li><p><strong>binary</strong> (<em>numpy_array</em>) – Masked DRR for thresholded regions to minimise proecssing time.</p></li>
+<li><p><strong>num_of_balls</strong> (<em>integer</em>) – Number of balls expected.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>ball_positions</strong> – alll ball positions in the image returned.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poderpool.get_drr_apertures_pool">
+<span class="sig-prename descclassname"><span class="pre">poderpool.</span></span><span class="sig-name descname"><span class="pre">get_drr_apertures_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlcfolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_balls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poderpool.get_drr_apertures_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>MLC files in tiff format are analysed to obtain centre of apoertures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>string</em>) – name of file.</p></li>
+<li><p><strong>mlcfolder</strong> (<em>string</em>) – folder of files.</p></li>
+<li><p><strong>num_of_balls</strong> (<em>int</em>) – how many balls.</p></li>
+<li><p><strong>cropx</strong> (<em>int</em>) – crop dimensions.</p></li>
+<li><p><strong>cropy</strong> (<em>int</em>) – crop dimensions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>aperture_centroids</strong> – returns ball position x,y in order of y axis location.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poderpool.get_drr_balls_pool">
+<span class="sig-prename descclassname"><span class="pre">poderpool.</span></span><span class="sig-name descname"><span class="pre">get_drr_balls_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_balls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drrfolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poderpool.get_drr_balls_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ball positions from the drr image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+<li><p><strong>i</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+<li><p><strong>num_of_balls</strong> (<em>int</em>) – DESCRIPTION.</p></li>
+<li><p><strong>drrfolder</strong> (<em>windowspath object</em>) – DESCRIPTION.</p></li>
+<li><p><strong>cropx</strong> (<em>integer</em>) – DESCRIPTION.</p></li>
+<li><p><strong>cropy</strong> (<em>integer</em>) – DESCRIPTION.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>ball_positions</strong> – DESCRIPTION.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poderpool.get_epid_balls_and_apertures_pool">
+<span class="sig-prename descclassname"><span class="pre">poderpool.</span></span><span class="sig-name descname"><span class="pre">get_epid_balls_and_apertures_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_balls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poderpool.get_epid_balls_and_apertures_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ball and apeture positions from the EPID image.</p>
+<p>Uses skimage hough transform to grab apetures and ball centroid from epid
+images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>string</em>) – name of image.</p></li>
+<li><p><strong>i</strong> (<em>int</em>) – DESCRIPTION.</p></li>
+<li><p><strong>num_of_balls</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+<li><p><strong>folder</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+<li><p><strong>cropx</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+<li><p><strong>cropy</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ball_positions</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+<li><p><strong>apeture_centroids</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poderpool.sparse_image">
+<span class="sig-prename descclassname"><span class="pre">poderpool.</span></span><span class="sig-name descname"><span class="pre">sparse_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poderpool.sparse_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crop the imge and make it sparse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img</strong> (<em>numpy array</em>) – image to make sparse.</p></li>
+<li><p><strong>cropx</strong> (<em>int</em>) – number pixels in the y direction.</p></li>
+<li><p><strong>cropy</strong> (<em>int</em>) – numnber of pixels in the x direction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DESCRIPTION.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>TYPE</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="poderdetect.html"
+                        title="previous chapter">poderdetect module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="poderprogressbar.html"
+                        title="next chapter">poderprogressbar module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/poderpool.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="poderprogressbar.html" title="poderprogressbar module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="poderdetect.html" title="poderdetect module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">poderballs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >poderballz</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">poderpool module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Kaan Kankean.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>
