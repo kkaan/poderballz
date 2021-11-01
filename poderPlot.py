@@ -247,19 +247,20 @@ def boxplot(what, num_of_balls, df):
     # data_4 = np.random.normal(0.6, 0.24, 10)
     
     
-    data_1 = (df['WL', 1,'x']**2*df['WL', 1,'y']**2)**(1/2)
-    data_2 = (df['WL', 2,'x']**2*df['WL', 2,'y']**2)**(1/2)
-    data_3 = (df['WL', 3,'x']**2*df['WL', 3,'y']**2)**(1/2)
-    data_4 = (df['WL', 4,'x']**2*df['WL', 4,'y']**2)**(1/2) 
+    ball_1 = (df['WL', 1,'x']**2*df['WL', 1,'y']**2)**(1/2)
+    ball_2 = (df['WL', 2,'x']**2*df['WL', 2,'y']**2)**(1/2)
+    ball_3 = (df['WL', 3,'x']**2*df['WL', 3,'y']**2)**(1/2)
+    ball_4 = (df['WL', 4,'x']**2*df['WL', 4,'y']**2)**(1/2) 
     
-    data = [data_1, data_2, data_3, data_4]
+    # in order of distance from isocentre
+    data = [ball_3, ball_4, ball_2, ball_1]
     
     fig = plt.figure(figsize =(7, 5))
     ax = fig.add_axes([0, 0, 1, 1])
      
     # Creating plot
     bp = ax.boxplot(data)
-    ticks = plt.xticks([1,2,3,4],[30,50,60,100])
+    ticks = plt.xticks([1,2,3,4],[0,60,70,100])
     plt.title(label="MTSI Positional Verification", fontsize=25)
     plt.xlabel("Distance from Isocentre (mm)", fontsize=10)
     plt.ylabel("Deviation from DRR (mm)", fontsize=10)
