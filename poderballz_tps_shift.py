@@ -67,7 +67,7 @@ def calculateWL(df):
 
 if __name__ == "__main__": 
     
-    fstring = 'P:/14 Projects/49_SRS Phantom/HTT/shift/HTT,shift1_6FFF_211019_0705/Output'
+    fstring = 'P:/14 Projects/49_SRS Phantom/HTT/shift/HTTshift_TPS_shiftiso/1 mm/Output'
     data_folder = (fstring)
     data_folder = Path(data_folder)
     frameinfo = data_folder / 'Gantry_Angles.csv'
@@ -148,9 +148,10 @@ if __name__ == "__main__":
     pool.join()
     
     drrpoolballs = np.asarray(drrpoolballs)
-    df.loc[:,'DRRBalls']= drrpoolballs
+    # df.loc[:,'DRRBalls']= drrpoolballs
     
-
+    # The shifts calculated in TPS - comment out when
+    df_observed.loc[:,'EPIDBalls']= drrpoolballs
 
     
     # multiproccess version for getting mlc aperture centroids    
@@ -167,8 +168,12 @@ if __name__ == "__main__":
     
     mlcpoolapes = np.asarray(mlcpoolapes)
     
-    df.loc[:,'DRRApertures']= mlcpoolapes
-
+    # uncomment when running for real
+    # df.loc[:,'DRRApertures']= mlcpoolapes
+    
+    
+    # The shifts calculated in TPS - comment out when running it for real
+    df_observed.loc[:,'EPIDApertures']= mlcpoolapes
     
     end = time.time()
     print(' ')
@@ -202,7 +207,7 @@ if __name__ == "__main__":
     df_observed = df.copy()
     
     # interpolate so we don't have pixel res artefacts
-    interpolate(df) # convert to mm and then interpolate.
+    interpolate(df_observed) # convert to mm and then interpolate.
     
     # if converted to mm then convert back to pixel values
     # to see the coordinates plotted on the images.
@@ -213,10 +218,10 @@ if __name__ == "__main__":
     dfpixel.loc[:,item_type] = dfpixel.loc[:,item_type]/pixel_to_mm
     plot_coords_on_images('epid', range(105,116), data_folder, dfpixel)
     
-    calculateWL(df)
+    calculateWL(df_observed)
            
     
-    plot_against_gantry('WL', num_of_balls, df)
+    plot_against_gantry('WL', num_of_balls, df_observed)
     plt.show()
     boxplot('WL', num_of_balls, df)
     plt.show()
@@ -241,8 +246,8 @@ if __name__ == "__main__":
     dfroom = df.copy()
     
     
-    epid_X = np.asarray(df.loc[:,('WL', [1,2,3,4], 'x')])
-    epid_Y = np.asarray(df.loc[:,('WL', [1,2,3,4], 'y')])
+    epid_X = np.asarray(df_observed.loc[:,('WL', [1,2,3,4], 'x')])
+    epid_Y = np.asarray(df_observed.loc[:,('WL', [1,2,3,4], 'y')])
     gantry = np.asarray(df.loc[:,'Gantry'])
     
 
