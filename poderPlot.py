@@ -241,6 +241,7 @@ def boxplot(what, num_of_balls, df):
     # data_1 = [0.00,	0.20, 0.10,	0.20, 0.70,	0.20, 0.10,	0.30, 0.30,	0.70, 0.20,	0.00]
     
     
+    # static
     # data_1 = np.random.normal(0.2, 0.1, 10)
     # data_2 = np.random.normal(0.32, 0.12, 10)
     # data_3 = np.random.normal(0.31, 0.15, 10)
