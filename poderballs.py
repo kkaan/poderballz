@@ -67,7 +67,7 @@ def calculateWL(df):
 
 if __name__ == "__main__": 
     
-    fstring = 'P:/14 Projects/49_SRS Phantom/HTT/shift/HTT,shift1_6FFF_211019_0705/Output'
+    fstring = 'P:/14 Projects/49_SRS Phantom/HTT/shift/HTT,0 shift_6FFF_211018_0747/Output Images'
     data_folder = (fstring)
     data_folder = Path(data_folder)
     frameinfo = data_folder / 'Gantry_Angles.csv'
