@@ -93,31 +93,72 @@ for oad_idx, oad in enumerate(oads):
 #     x = np.random.normal(1+i, 0.04, size=len(y))
 #     ax.plot(x, y, 'r.', alpha=0.2)
 
+# Set a flag to display a particular experiment:
+# df_matchdata["DISPLAY"]= np.zeros(len(df_matchdata))
+# df_matchdata.loc[4,"DISPLAY"] = 1
+
+indexlist = [0]* len(df_matchdata)
+highlightsample = 4
+indexlist[highlightsample] = 1
+df_matchdata.index = indexlist
+df_matchdata.index.name = "Index"
+
+
+
+# Plot projection deviation
 sns.set(font_scale=3, rc={'figure.figsize':(30,15)})
 sns.set_style("whitegrid")
-ax = sns.boxplot(x="variable", y="value", data=pd.melt(df_projected_dev), 
+ax = sns.boxplot(data=(df_projected_dev), 
                       showfliers=False, palette="flare")
-ax = sns.stripplot(x="variable", y="value", 
-                        data=pd.melt(df_projected_dev), marker="o", alpha=0.3, 
-                        color="black",size=6)
+np.random.seed(123)
+ax = sns.stripplot(data=df_projected_dev, marker="o", 
+                   alpha=0.3, color="black",size=6)
 
 # boxplot.axes.set_title("Projected deviation due to intrafraction motion", 
 #                        size=24)
+
 ax.set_xlabel("Distance from isocentre (mm)", labelpad=20)
 ax.set_ylabel("Deviation (mm)", labelpad=20)
-ax.axhline(1,linestyle='--')
+# ax.axhline(1,linestyle='--')
 plt.ylim(None, 5)
 #plt.xlim(None, 12.5)
 plt.show()
 
 
+
+
+# Boxplot the match results for each dimension
+ 
+# Create an array with the colors you want to use
+colors = ["#000000", "#FF0000"]
+
 sns.set(font_scale=3, rc={'figure.figsize':(30,15)})
 sns.set_style("whitegrid")
 ax = sns
-ax = sns.boxplot(data=df_matchdata, palette="viridis")
+ax = sns.boxplot(data=df_matchdata.drop("TREATMENT DATE", axis=1), 
+                palette="viridis")
+dfm = df_matchdata.drop("TREATMENT DATE", axis=1).reset_index().melt('Index')
 np.random.seed(123) #this keep the jitted the same when plotting
-ax = sns.stripplot(data=df_matchdata, marker="o", alpha=0.3, 
-                        color="black",size=13)
+ax = sns.stripplot(data=dfm, x="variable", y="value", color="black", jitter = True, 
+                   marker="o", alpha=0.3, size=13)
+# ax = ax.map(sns.stripplot(data=df_matchdata.loc[4,:], marker="o", alpha=1, 
+#                         color="red",size=13))
+ax.set_xlabel("Axis of translation/rotation", labelpad=20)
+ax.set_ylabel("Deviation (mm or degrees)", labelpad=20)
+plt.show()
+
+
+
+
+sns.set(font_scale=3, rc={'figure.figsize':(30,15)})
+sns.set_style("whitegrid")
+ax = sns
+ax = sns.boxplot(data=df_matchdata.drop("TREATMENT DATE", axis=1), 
+                 showfliers=False,  palette="viridis")
+dfm = df_matchdata.drop("TREATMENT DATE", axis=1).reset_index().melt('Index')
+np.random.seed(123) #this keep the jitted the same when plotting
+ax = sns.stripplot(data=dfm, x="variable", y="value", hue="Index", palette=colors, jitter = True, 
+                   marker="o", alpha=0., size=13)
 # ax = ax.map(sns.stripplot(data=df_matchdata.loc[4,:], marker="o", alpha=1, 
 #                         color="red",size=13))
 ax.set_xlabel("Axis of translation/rotation", labelpad=20)
