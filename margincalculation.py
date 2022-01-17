@@ -21,15 +21,21 @@ df_matchdata = pd.read_excel(filename, header = 1)
 #convert translations to mm 
 df_matchdata.iloc[:,[1,2,3]] = df_matchdata.iloc[:,[1,2,3]]*10
 
+
 maximum_OAD = 150 #mm
 interval = 10 #mm
+n_fx = df_matchdata.shape[0]
 
-oads = np.array(range(0, maximum_OAD+interval, interval))          
-oads_dev = np.zeros((df_matchdata.shape[0], oads.size))
-
+oads = np.array(range(0, maximum_OAD+interval, interval))
+n_targets = oads.size       
+oads_dev = np.zeros((n_fx, n_targets))
+oads_xyz = np.zeros((oads.size, 4)) #sum of squared x y z deviations for each QAD
+oads_xyz[:,0] = oads
 
 
 df_projected_dev = pd.DataFrame(oads_dev, columns = oads)
+
+
 
 
 for oad_idx, oad in enumerate(oads):
@@ -81,9 +87,12 @@ for oad_idx, oad in enumerate(oads):
         r_new = R_pitch @ R_roll @ R_rtn @ T @ r
         
         E = r_new-r
+        oads_xyz[oad_idx,1:4] =  oads_xyz[oad_idx,1:4] + np.square(E[0:3])
         delta = np.sqrt(E.dot(E))
         oads_dev[fraction, oad_idx] = delta
 
+sigma_mean0 = np.sqrt(oads_xyz[:,1:4]/n_fx)
+ortega_margin = sigma_mean0*2.5
 
 # ax = df_projected_dev.boxplot(showfliers=False)
 # ax.set_ylabel('Deviation from planned position (mm)')
@@ -105,22 +114,35 @@ df_matchdata.index.name = "Index"
 
 
 
-# Plot projection deviation
+## Ortega
+# n_j = df_projected_dev.shape[0] #number of experiments
+
+# sigma_mean0 = (df_projected_dev.pow(2).sum() / n_j).pow(0.5)
+
+# ortega_margin = sigma_mean0*2.5
+
+
+# Plot projected deviation
 sns.set(font_scale=3, rc={'figure.figsize':(30,15)})
 sns.set_style("whitegrid")
 ax = sns.boxplot(data=(df_projected_dev), 
-                      showfliers=False, palette="flare")
+                      showfliers=False, palette="flare", whis=[0,90])
 np.random.seed(123)
 ax = sns.stripplot(data=df_projected_dev, marker="o", 
                    alpha=0.3, color="black",size=6)
 
-# boxplot.axes.set_title("Projected deviation due to intrafraction motion", 
-#                        size=24)
+ax = sns.lineplot(x=oads.astype(str), y=ortega_margin[:,0], linewidth = 10, label="Ortega_x")
+ax = sns.lineplot(x=oads.astype(str), y=ortega_margin[:,1], linewidth = 10, label="Ortega_y")
+ax = sns.lineplot(x=oads.astype(str), y=ortega_margin[:,2], linewidth = 10, label="Ortega_x")
 
 ax.set_xlabel("Distance from isocentre (mm)", labelpad=20)
 ax.set_ylabel("Deviation (mm)", labelpad=20)
-# ax.axhline(1,linestyle='--')
+
 plt.ylim(None, 5)
+plt.legend(loc='upper left')
+
+
+
 #plt.xlim(None, 12.5)
 plt.show()
 
@@ -148,8 +170,6 @@ ax.set_ylabel("Deviation (mm or degrees)", labelpad=20)
 plt.show()
 
 
-
-
 sns.set(font_scale=3, rc={'figure.figsize':(30,15)})
 sns.set_style("whitegrid")
 ax = sns
@@ -164,3 +184,6 @@ ax = sns.stripplot(data=dfm, x="variable", y="value", hue="Index", palette=color
 ax.set_xlabel("Axis of translation/rotation", labelpad=20)
 ax.set_ylabel("Deviation (mm or degrees)", labelpad=20)
 plt.show()
+
+
+
