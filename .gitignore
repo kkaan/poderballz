@@ -3,3 +3,9 @@
 *.png
 *.pyc
 *.spydata
+.vs/poderballz/project-colors.json
+.vs/poderballz/v17/.suo
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/PythonSettings.json
+.vs/VSWorkspaceState.json
