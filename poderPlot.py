@@ -192,18 +192,18 @@ def plot_coords_on_images(what, range_of_images, data_folder, df):
         if what == 'drrape':
             for a in apertures:
                     ax.plot(a[0], a[1], color="darkred", marker='x', 
-                            linewidth=5, markersize=10)
+                            linewidth=5, markersize=3)
         elif what == 'drrballs':
             for b in balls:
                     ax.plot(b[0], b[1], color="darkblue",marker='o', 
-                            linewidth=3, markersize=6)
+                            linewidth=3, markersize=3)
         elif what == 'epid':
             for a in apertures:
                     ax.plot(a[0], a[1], color="darkred", marker='x', 
-                            linewidth=5, markersize=10)
+                            linewidth=5, markersize=3)
             for b in balls:
                     ax.plot(b[0], b[1], color="darkblue",marker='o', 
-                            linewidth=3, markersize=6)
+                            linewidth=3, markersize=3)
                     
         ax.grid(True)            
         ax.imshow(image)
