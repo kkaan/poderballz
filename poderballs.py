@@ -67,7 +67,7 @@ def calculateWL(df):
 
 if __name__ == "__main__": 
     
-    fstring = 'P:/14 Projects/49_SRS Phantom/HTT/shift/HTT,shift1_6FFF_211019_0705/Output'
+    fstring = 'P:/14 Projects/49_SRS Phantom/HTT/shift/HTT,0 shift_6FFF_211018_0747/Output Images'
     data_folder = (fstring)
     data_folder = Path(data_folder)
     frameinfo = data_folder / 'Gantry_Angles.csv'
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     plt.show()
     plot_against_gantry('EPIDApertures', num_of_balls, df)
     plt.show()
-    plot_against_gantry('EPIDBalls', num_of_balls, df)
+    plot_against_gantry('EPIDBalls', 1, df)
     plt.show()
     
     # Allowed arguments:'drrballs', 'drrape', 'drr', 'epid' 
@@ -211,7 +211,8 @@ if __name__ == "__main__":
     pixel_res = 0.336 #asi1000 = 0.34, asi1200 = 0.39
     pixel_to_mm = pixel_res*(1000+SDD)/1000
     dfpixel.loc[:,item_type] = dfpixel.loc[:,item_type]/pixel_to_mm
-    plot_coords_on_images('epid', range(105,116), data_folder, dfpixel)
+    plot_coords_on_images('epid', range(0,100), data_folder, dfpixel)
+    plot_coords_on_images('epid', range(0,100), data_folder, df_observed)    
     
     calculateWL(df)
            
@@ -227,7 +228,7 @@ if __name__ == "__main__":
     
     df.to_csv(fstring+'/results.csv')
     
-    whattoplot = 'DRRApertures'
+    whattoplot = 'EPIDApertures'
     whichball = 4
     legendtitle = whattoplot+' '+ str(whichball)
     ax1 = dfpixel.plot(kind="scatter", x="Gantry", y=(whattoplot,whichball,'x'), s=1, color='darkred', label='interpolated')

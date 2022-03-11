@@ -99,16 +99,16 @@ def plot_against_gantry(what, num_of_balls, df):
     # num_of_balls = 1 # comment out this line to print all balls
     
     for i in range(1,num_of_balls+1):
-        df.plot(kind="scatter", x='Gantry', y=(what, i, 'x'), s=1,
+        df.plot(kind="scatter", x='Gantry', y=(what, i, 'x'), s=10,
                 color=colours[i-1], label='ball {}'.format(i), ax=ax1)
         
-        df.plot(kind="scatter", x='Gantry', y=(what, i, 'y'), s=1,
+        df.plot(kind="scatter", x='Gantry', y=(what, i, 'y'), s=10,
                 color=colours[i-1], label='ball {}'.format(i), ax=ax2)
     
     ax1.set_ylabel('X position (mm)')  
     ax2.set_ylabel('Y position (mm)')
     
-    ax1.legend(title="Target#", fontsize="xx-small", loc="upper right")
+    ax1.legend(title="Target #", fontsize="small", loc="upper right")
     ax2.get_legend().remove()
     
 def plot_coords_on_images(what, range_of_images, data_folder, df):
@@ -192,23 +192,22 @@ def plot_coords_on_images(what, range_of_images, data_folder, df):
         if what == 'drrape':
             for a in apertures:
                     ax.plot(a[0], a[1], color="darkred", marker='x', 
-                            linewidth=3, markersize=5)
+                            linewidth=5, markersize=3)
         elif what == 'drrballs':
             for b in balls:
                     ax.plot(b[0], b[1], color="darkblue",marker='o', 
-                            linewidth=3, markersize=2)
+                            linewidth=3, markersize=3)
         elif what == 'epid':
             for a in apertures:
                     ax.plot(a[0], a[1], color="darkred", marker='x', 
-                            linewidth=3, markersize=5)
+                            linewidth=5, markersize=3)
             for b in balls:
                     ax.plot(b[0], b[1], color="darkblue",marker='o', 
-                            linewidth=3, markersize=2)
+                            linewidth=3, markersize=3)
                     
-                    
-        
+        ax.grid(True)            
         ax.imshow(image)
-        ax.title.set_text(filename)
+        #ax.title.set_text(filename)
   
             
 
@@ -241,6 +240,7 @@ def boxplot(what, num_of_balls, df):
     # data_1 = [0.00,	0.20, 0.10,	0.20, 0.70,	0.20, 0.10,	0.30, 0.30,	0.70, 0.20,	0.00]
     
     
+    # static
     # data_1 = np.random.normal(0.2, 0.1, 10)
     # data_2 = np.random.normal(0.32, 0.12, 10)
     # data_3 = np.random.normal(0.31, 0.15, 10)
