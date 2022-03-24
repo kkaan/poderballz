@@ -23,6 +23,9 @@ import os
 import tqdm
 import time
 
+import streamlit as st
+import os
+
 from pathlib import Path
 from multiprocessing import Pool
 from itertools import repeat
@@ -63,9 +66,18 @@ def calculateWL(df):
         pixel_to_mm*(df.loc[:, 'EPIDApertures'] - df.loc[:, 'EPIDBalls']))
     
        
-
+def file_selector(folder_path='P:/14 Projects/49_SRS Phantom/'):
+    filenames = os.listdir(folder_path)
+    selected_filename = st.selectbox('Select a file', filenames)
+    return os.path.join(folder_path, selected_filename)
 
 if __name__ == "__main__": 
+    
+    st.title = ("Poderballs")
+
+    filename = file_selector()
+    st.write('You selected `%s`' % filename)
+    
     
     fstring = 'P:/14 Projects/49_SRS Phantom/HTT/shift/HTT,0 shift_6FFF_211018_0747/Output Images'
     data_folder = (fstring)
