@@ -9,7 +9,8 @@ Created on Tue Oct  5 10:09:59 2021
 
 import sys
 
-#progress bar
+
+#progress bar standard output
 def update_progress(progress, subtext):
     """
     Create a progress bar in standard output.
@@ -45,3 +46,4 @@ def update_progress(progress, subtext):
                                                   subtext)
     sys.stdout.write(text)
     sys.stdout.flush()
+

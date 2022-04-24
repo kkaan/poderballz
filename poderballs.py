@@ -20,11 +20,10 @@ import matplotlib.pyplot as plt
 import pandas
 import glob
 import os
-import tqdm
-import time
+from tqdm import tqdm
 
-import streamlit as st
-import os
+
+import time
 
 from pathlib import Path
 from multiprocessing import Pool
@@ -35,7 +34,7 @@ from poderInterpolate import interpolate
 from poderpool import get_drr_balls_pool, get_epid_balls_and_apertures_pool, get_drr_apertures_pool
 
 # equivalent sequential functions 
-from poderdetect import get_drr_apertures, get_drr_balls, get_epid_balls_and_apertures
+#from poderdetect import get_drr_apertures, get_drr_balls, get_epid_balls_and_apertures
 
 def calculateWL(df):
     """
@@ -66,26 +65,59 @@ def calculateWL(df):
         pixel_to_mm*(df.loc[:, 'EPIDApertures'] - df.loc[:, 'EPIDBalls']))
     
        
-def file_selector(folder_path='P:/14 Projects/49_SRS Phantom/'):
-    filenames = os.listdir(folder_path)
-    selected_filename = st.selectbox('Select a file', filenames)
-    return os.path.join(folder_path, selected_filename)
+def epidpool(inputs,names, df):
+    pool = Pool() 
+    
+    #tqdm is the progress bar
+    #starmap allows tqdm and inputs
+    epidpoolballs, epidpoolapes = zip(*pool.starmap(get_epid_balls_and_apertures_pool,inputs))
+    pool.close()
+    pool.join()
+    
+
+    epidpoolballs = np.asarray(epidpoolballs)
+    epidpoolapes = np.asarray(epidpoolapes)
+    df.loc[:,'EPIDBalls']= epidpoolballs
+    df.loc[:,'EPIDApertures']= epidpoolapes
+    
+
+def drrpool(inputs, names, df):
+    
+    pool = Pool() 
+    drrpoolballs = pool.starmap(get_drr_balls_pool,inputs)
+    pool.close()
+    pool.join()
+    
+    drrpoolballs = np.asarray(drrpoolballs)
+    df.loc[:,'DRRBalls']= drrpoolballs
+
+def mlcpool(inputs, names, df):
+    
+    pool = Pool() 
+    mlcpoolapes = pool.starmap(get_drr_apertures_pool,inputs)
+    pool.close()
+    pool.join()
+    
+    mlcpoolapes = np.asarray(mlcpoolapes)
+    
+    df.loc[:,'DRRApertures']= mlcpoolapes
 
 if __name__ == "__main__": 
+    pass
     
-    st.title = ("Poderballs")
 
-    filename = file_selector()
-    st.write('You selected `%s`' % filename)
+    
+    fstring = '//nsccgosfs04/physics1$/14 Projects/49_SRS Phantom/HTT/shift/HTT,0 shift_6FFF_211018_0747/Output Images'
     
     
-    fstring = 'P:/14 Projects/49_SRS Phantom/HTT/shift/HTT,0 shift_6FFF_211018_0747/Output Images'
     data_folder = (fstring)
     data_folder = Path(data_folder)
     frameinfo = data_folder / 'Gantry_Angles.csv'
     epidfolder = data_folder / 'EPID'
     drrfolder = data_folder / 'DRR'
     mlcfolder = data_folder / 'MLC'
+    
+
     
     #create dataframe with gantry angles and filenames
     
@@ -98,7 +130,7 @@ if __name__ == "__main__":
     gdf=pandas.read_csv(frameinfo, header=None, names=["Gantry"])
     df['Gantry']= gdf['Gantry']
     
-    
+        
     #load epid image names
     
     names = [os.path.basename(x) for x in glob.glob(fstring+'/EPID/*.tif')]
@@ -130,17 +162,8 @@ if __name__ == "__main__":
                   repeat(cropx), 
                   repeat(cropy))
     
-    pool = Pool() 
-    epidpoolballs, epidpoolapes = zip(*pool.starmap(get_epid_balls_and_apertures_pool, 
-                                               tqdm.tqdm(inputs, 
-                                                         total=len(names))))
-    pool.close()
-    pool.join()
-       
-    epidpoolballs = np.asarray(epidpoolballs)
-    epidpoolapes = np.asarray(epidpoolapes)
-    df.loc[:,'EPIDBalls']= epidpoolballs
-    df.loc[:,'EPIDApertures']= epidpoolapes
+    epidpool(inputs)
+    
     
     end = time.time()
     print(' ')
@@ -152,36 +175,17 @@ if __name__ == "__main__":
                   repeat(cropx), 
                   repeat(cropy))
     
-    pool = Pool() 
-    drrpoolballs = pool.starmap(get_drr_balls_pool, 
-                                tqdm.tqdm(inputs,
-                                           total=len(names)))
-    pool.close()
-    pool.join()
     
-    drrpoolballs = np.asarray(drrpoolballs)
-    df.loc[:,'DRRBalls']= drrpoolballs
+    drrpool(inputs)
     
-
-
     
     # multiproccess version for getting mlc aperture centroids    
     inputs = zip(names, repeat(num_of_balls), repeat(mlcfolder),
                   repeat(cropx), 
                   repeat(cropy))
     
-    pool = Pool() 
-    mlcpoolapes = pool.starmap(get_drr_apertures_pool, 
-                                tqdm.tqdm(inputs,
-                                           total=len(names)))
-    pool.close()
-    pool.join()
-    
-    mlcpoolapes = np.asarray(mlcpoolapes)
-    
-    df.loc[:,'DRRApertures']= mlcpoolapes
-
-    
+    mlcpool(inputs)
+        
     end = time.time()
     print(' ')
     print(end - start, 'seconds')
@@ -194,7 +198,7 @@ if __name__ == "__main__":
     # print(end - start, 'seconds')
     
 
-    
+  
     
     plot_against_gantry('DRRApertures', num_of_balls, df) # EPIDBalls, EPIDApertures, DRRBalls, DRRAperturs
     plt.show()

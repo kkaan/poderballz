@@ -110,6 +110,7 @@ def plot_against_gantry(what, num_of_balls, df):
     
     ax1.legend(title="Target #", fontsize="small", loc="upper right")
     ax2.get_legend().remove()
+    return fig
     
 def plot_coords_on_images(what, range_of_images, data_folder, df):
     """
